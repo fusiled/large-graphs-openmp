@@ -68,6 +68,13 @@ int main(int argc, char const *argv[])
 	double apsp_sssp_time = ( ((double)(toc-tic)) /CLOCKS_PER_SEC);
 	printf("apsp_sssp: %f seconds\n", apsp_sssp_time );
 	printf("apsp_sssp ended\n");
+	printf("apsp_fw begin\n");
+	tic = clock();
+	apsp_fw(gr);
+	toc = clock();
+	double apsp_fw_time = ( ((double)(toc-tic)) /CLOCKS_PER_SEC);
+	printf("apsp_fw: %f seconds\n", apsp_fw_time );
+	printf("apsp_fw ended\n");
 	destroyGraph(gr);
 	return 0;
 }

@@ -10,7 +10,7 @@ void bfs(Graph *, int);
 
 void sssp(Graph *, int);
 
-void apsp_fw(Graph *);
+int ** apsp_fw(Graph *);
 
 void apsp_sssp(Graph *);
 
