@@ -44,7 +44,6 @@ Graph * parseFile(char * path, int graph_type)
 Graph * analyze_build_node(FILE * fp, int graph_type)
 {	
 	Graph * gr;
-	int * n_neighbor;
 	//start from the beginning of the file
 	rewind(fp);
 	//init file vars
@@ -71,12 +70,11 @@ Graph * analyze_build_node(FILE * fp, int graph_type)
 				buf = strtok(NULL, SPACE_STRING);
 				int n_edge_buf = atoi(buf);
 				gr = newGraph(n_vert_buf, n_edge_buf, GRAPH_WITH_WEIGHT, graph_type);
-				n_neighbor = malloc(sizeof(int)*n_vert_buf);
-				if(gr==NULL || n_neighbor==NULL)
+				if(gr==NULL)
 				{
 					free(buf);
 					free(line_copy);
-					printf("Error on graph malloc or n_neigbor malloc\n");
+					printf("Error on graph malloc\n");
 					exit(1);
 				}
 			break;
@@ -92,33 +90,28 @@ Graph * analyze_build_node(FILE * fp, int graph_type)
 				buf = strtok(NULL, SPACE_STRING);
 				int head = atoi(buf);
 				head -= 1;
-				n_neighbor[head] += 1;
+				if(graph_type==GRAPH_TYPE_ADJ_LIST)
+				{
+					increaseNeighborNumber(gr, head);
+				}
 			break;
 			case FILE_COMMENT: //nothing to do. Ingore this line
 			break;
 			default:
-				printf("Unknown rule ' %s '. Ignoring it..\n", line );
+				printf("Unknown rule ' %s '. Ignoring it...\n", line );
 		}
 		free(line_copy);
 	}
-	build_adj_list_pointers(gr, n_neighbor);
-	free(n_neighbor);
+	finalizeVertices(gr);
 	return gr;
 }
 
 
 void analyze_build_edge(FILE * fp, Graph * gr)
 {
-	int * neighbor_counter;
 	if(gr == NULL)
 	{
 		printf("You must call the function analyzeFile with PARSE_TYPE_BUILD_NODE before calling it with PARSE_TYPE_BUILD_EDGES");
-		exit(1);
-	}
-	neighbor_counter = calloc(sizeof(int),gr->n_vert);
-	if(neighbor_counter==NULL)
-	{
-		printf("Error in instanciating neighbor_counter buffer\n");
 		exit(1);
 	}
 	//start from the beginning of the file
@@ -158,15 +151,14 @@ void analyze_build_edge(FILE * fp, Graph * gr)
 				int weight = atoi(buf);
 				head -= 1;
 				tail -= 1;
-				insertEdge(gr, head, tail, weight, neighbor_counter[head]);
-				neighbor_counter[head]++;
+				insertEdge(gr, head, tail, weight);
 			break;
 			default:
 				printf("Unknown rule ' %s '. Ignoring it..\n", line );
 		}
 		free(line_copy);
 	}
-	free(neighbor_counter);
+	finalizeEdges(gr);
 }
 
 

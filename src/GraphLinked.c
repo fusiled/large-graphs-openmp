@@ -3,10 +3,14 @@
 #include "graph_common.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef DEBUG
 	#include <stdio.h>
 #endif
+
+
+int getNeighborNumber(GraphLinked *, int);
 
 GraphLinked * newGraphLinked(int n_vert, int n_edge, int with_weight)
 {
@@ -24,7 +28,7 @@ GraphLinked * newGraphLinked(int n_vert, int n_edge, int with_weight)
 		exit(1);
 	}
 	gr -> n_edge = n_edge;
-	gr -> E_ar = malloc(sizeof(Edge)*n_edge);
+	gr -> E_ar = malloc(sizeof(int)*n_edge);
 	if(gr -> E_ar == NULL)
 	{
 		printf("Error on Edge Array allocation\n" );
@@ -32,7 +36,7 @@ GraphLinked * newGraphLinked(int n_vert, int n_edge, int with_weight)
 	}
 	if(with_weight)
 	{
-		gr -> W_ar = malloc(sizeof(Weight)*n_edge);
+		gr -> W_ar = malloc(sizeof(int)*n_edge);
 	}
 	else
 	{
@@ -58,7 +62,7 @@ void destroyGraphLinked(GraphLinked * gr)
 	#endif
 }
 
-void build_adj_list_pointers(GraphLinked * gr, int * n_neighbor)
+void buildAdjListPointers(GraphLinked * gr, int * n_neighbor)
 {
 	#ifdef DEBUG
 		//check correctness of n_neighbor
@@ -99,12 +103,12 @@ void build_adj_list_pointers(GraphLinked * gr, int * n_neighbor)
 
 
 
-void insertEdge(GraphLinked * gr, int head, int tail, int weight, int index)
+void insertEdgeLinked(GraphLinked * gr, int head, int tail, int weight, int index)
 {
-	if(index >= get_n_neighbor(gr,head) )
+	if(index >= getNeighborNumber(gr,head) )
 	{
 		#ifdef DEBUG
-			printf("Cannot insert edge in %d vertex: index of insertEdge out of n_neighbor: %d >= %d \n",head, index, get_n_neighbor(gr,head)  );
+			printf("Cannot insert edge in %d vertex: index of insertEdge out of n_neighbor: %d >= %d \n",head, index, getNeighborNumber(gr,head)  );
 		#endif
 		return;
 	}
@@ -120,7 +124,7 @@ void printGraphLinked(GraphLinked * gr)
 	for(int i=0; i< gr->n_vert; i++)
 	{
 		printf("Node: %d:", i+1);
-		for (int j=0; j < get_n_neighbor(gr,i); j++)
+		for (int j=0; j < getNeighborNumber(gr,i); j++)
 		{
 			printf("-> %d", gr->V_ar[i].adj_list[j]+1 );
 		}
@@ -128,13 +132,13 @@ void printGraphLinked(GraphLinked * gr)
 	}
 }
 
-int get_n_neighbor(GraphLinked * gr, int index)
+int getNeighborNumber(GraphLinked * gr, int index)
 {
 	//check bounds
 	if(index >= gr->n_vert || index < 0)
 	{
 		#ifdef DEBUG
-			printf("index out of bounds in get_n_neighbor\n");
+			printf("index out of bounds in getNeighborNumber\n");
 		#endif
 		return -1;
 	}
@@ -149,8 +153,8 @@ int get_n_neighbor(GraphLinked * gr, int index)
 		return( gr->E_ar+(gr->n_edge) - gr->V_ar[index].adj_list) ;
 	}
 	//common case
-	Edge * adj_ref = gr->V_ar[index].adj_list;
-	Edge * next_adj_ref = NULL;
+	int * adj_ref = gr->V_ar[index].adj_list;
+	int * next_adj_ref = NULL;
 	int buf_next_index = index +1;
 	//search for the next pointer in the edge array remaining into V_ar bounds
 	while(buf_next_index < gr->n_vert && gr->V_ar[buf_next_index].adj_list==NULL)
@@ -164,4 +168,42 @@ int get_n_neighbor(GraphLinked * gr, int index)
 						gr->V_ar[buf_next_index].adj_list;
 	//return n_neighbor
 	return (next_adj_ref - adj_ref);
+}
+
+
+int * getNeighborsLinked(GraphLinked * gr, int index, int * n_neighbor_ref)
+{
+	int n_neighbor = getNeighborNumber(gr, index);
+	int * ret_ref = malloc(sizeof(int)*n_neighbor);
+	memcpy(ret_ref, gr->V_ar[index].adj_list, sizeof(int)*n_neighbor);
+	*n_neighbor_ref = n_neighbor;
+	return ret_ref;
+}
+
+
+int getVertexNumberLinked(GraphLinked * gr)
+{
+	return gr->n_vert;
+}
+
+
+int getWeightLinked(GraphLinked * gr, int head, int tail)
+{
+	int i;
+	int n_neighbor =  getNeighborNumber(gr,head);
+	for(i=0; i < n_neighbor; i++)
+	{
+		if(gr->V_ar[head].adj_list[i]==tail)
+		{
+			break;
+		}
+	}
+	if( i >= n_neighbor )
+	{
+		#ifdef DEBUG
+			printf("%d and %d are not neighbors! Returning 0\n", head,tail);
+		#endif
+			return 0;
+	}
+	return gr->V_ar[head].w_adj_list[i];
 }

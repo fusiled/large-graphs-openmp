@@ -1,17 +1,28 @@
 
+#ifndef GRAPH_MATRIX_H
+#define GRAPH_MATRIX_H value
+#endif
+
 typedef struct GraphMatrixStruct
 {
 	int n_vert;
-	int n_edge;
-	Weight ** W_ma;
+	int ** W_ma;
 	char with_weight;
 } GraphMatrix;
 
 
 
-GraphMatrix * newGraphMatrix(int, int, int);
-
+GraphMatrix * newGraphMatrix(int, int);
 
 void destroyGraphMatrix(GraphMatrix *);
 
-void insertEdge(GraphMatrix *, int, int, int);
+void insertEdgeMatrix(GraphMatrix *, int, int, int);
+
+int * getNeighborsMatrix(GraphMatrix *, int, int *);
+
+void printGraphMatrix(GraphMatrix *);
+
+int getVertexNumberMatrix(GraphMatrix *);
+
+
+int getWeightMatrix(GraphMatrix *, int, int);

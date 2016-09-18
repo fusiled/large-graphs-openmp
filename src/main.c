@@ -4,6 +4,7 @@
 #include "Graph.h"
 #include "parse_utils.h"
 #include "graph_algo.h"
+#include "graph_common.h"
 
 #include <time.h>
 #include <stdlib.h>
@@ -25,7 +26,7 @@ int main(int argc, char const *argv[])
 		printf("Wrong parameters. Pass FIRST the number of threads, then the path to the graph file!\n");
 		return -1;
 	}
-	Graph * gr =parseFile(argv[2]);
+	Graph * gr =parseFile(argv[2], GRAPH_TYPE_MATRIX );
 	//printGraph(gr);
 	printf("starting bfs\n");
 	clock_t tic, toc;
