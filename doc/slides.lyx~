@@ -81,16 +81,7 @@ Matteo M.
 \end_layout
 
 \begin_layout Frame
-\begin_inset Argument 4
-status open
-
-\begin_layout Plain Layout
-Graph Model
-\end_layout
-
-\end_inset
-
-
+Concepts:
 \end_layout
 
 \begin_layout Itemize
@@ -106,11 +97,40 @@ Graph Model
 \end_inset
 
  are the edges.
+ If the weight of the edges must be taken into account the structure 
+\begin_inset Formula $W$
+\end_inset
+
+ of size 
+\begin_inset Formula $E^{2}$
+\end_inset
+
+is considered.
 \end_layout
 
 \begin_layout Itemize
-Adjacency lists are packed into a large size array.
- (Compact adjacency list form???)
+Vertex are packed into an array 
+\begin_inset Formula $V_{ar}$
+\end_inset
+
+ of size 
+\begin_inset Formula $|V|$
+\end_inset
+
+.
+ Every Vertex has a pointer to its adjacency list.
+\end_layout
+
+\begin_layout Itemize
+Adjacency lists are packed into a large size array 
+\begin_inset Formula $E_{ar}$
+\end_inset
+
+ if size 
+\begin_inset Formula $|E|$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Itemize
@@ -273,7 +293,7 @@ status open
 
 \begin_layout Plain Layout
 
-fun Cuda_Bfs(Graph G(V,E), Source S)
+fun cuda_bfs(Graph G(V,E), Source S)
 \end_layout
 
 \begin_layout Plain Layout
@@ -318,7 +338,7 @@ fun Cuda_Bfs(Graph G(V,E), Source S)
 
 \begin_layout Plain Layout
 
-		//update state through a parallel loop
+		//update state through a parallel loop.
 \end_layout
 
 \begin_layout Plain Layout
@@ -328,7 +348,8 @@ fun Cuda_Bfs(Graph G(V,E), Source S)
 
 \begin_layout Plain Layout
 
-			//In openMp set the chunk size properly
+			//In openMp set the chunk size properly.
+ For all vertex in the graph
 \end_layout
 
 \begin_layout Plain Layout
@@ -365,7 +386,7 @@ status open
 
 \begin_layout Plain Layout
 
-fun Cuda_Bfs_Kernel(V_ar, E_ar, F, X, C)
+fun cuda_bfs_kernel(V_ar, E_ar, F, X, C)
 \end_layout
 
 \begin_layout Plain Layout
@@ -489,18 +510,453 @@ Support structures:
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $W$
+\begin_inset Formula $C$
 \end_inset
 
- is the weight array of size 
-\begin_inset Formula $|E|$
+ is the cost array of size 
+\begin_inset Formula $|V|$
 \end_inset
 
 
 \end_layout
 
+\begin_layout Itemize
+\begin_inset Formula $U$
+\end_inset
+
+ is an alternate array of size 
+\begin_inset Formula $|V|$
+\end_inset
+
+.
+ It is a sort of buffer that contains the updated cost calculated in 
+\emph on
+cuda_sssp_kernel_1
+\emph default
+ function.
+\end_layout
+
 \begin_layout Standard
-In each iteration each vertex checks
+In each iteration each vertex checks if it is in the mask M.
+ If yes, it fetches its current cost from the cost array C and its neighbor’s
+ weights from the weight array W.
+ The cost of each neighbor is updated if greater than the cost of current
+ vertex plus the edge weight to that neighbor.
+ The new cost is not reflected in the cost array but is updated in an alternate
+ array U.
+ At the end of the execution of the kernel, a second kernel compares cost
+ C with updating cost U.
+ It updates the cost C only if it is more than U and makes its own entry
+ in the mask M.
+ The updating cost array reflects the cost array after each kernel execution
+ for consistency.
+ 
+\bar under
+The second stage of kernel execution is required as there is no synchronization
+ between the CUDA multiprocessors
+\bar default
+ (openMP has synchronization barrier.
+ We can simplify the algorithm).
+ Updating the cost at the time of modification itself can result in read
+ after write inconsistencies.
+ The second stage kernel also toggles a flag if any mask is set.
+ If this flag is not set the execution stops.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fun cuda_sssp(Graph G(V,E,W), Source Vertex S)
+\end_layout
+
+\begin_layout Plain Layout
+
+	Create vertex array V_ar , edge array E_ar and weight array W_ar from G(V,E,W)
+\end_layout
+
+\begin_layout Plain Layout
+
+	Create mask array M, cost array C and Updating cost array U of size V
+\end_layout
+
+\begin_layout Plain Layout
+
+	Initialize mask M to false, cost array C and Updating cost array U to INF
+\end_layout
+
+\begin_layout Plain Layout
+
+	M[S]=true
+\end_layout
+
+\begin_layout Plain Layout
+
+	C[S]=0
+\end_layout
+
+\begin_layout Plain Layout
+
+	U[S]=0
+\end_layout
+
+\begin_layout Plain Layout
+
+	while M is not Empty do
+\end_layout
+
+\begin_layout Plain Layout
+
+		for each vertex V in parallel do
+\end_layout
+
+\begin_layout Plain Layout
+
+			Invoke CUDA SSSP KERNEL1(V_ar, E_ar, W, M, C, U)
+\end_layout
+
+\begin_layout Plain Layout
+
+			Invoke CUDA SSSP KERNEL2(V_ar, E_ar, W, M, C, U)
+\end_layout
+
+\begin_layout Plain Layout
+
+		end for
+\end_layout
+
+\begin_layout Plain Layout
+
+	end while
+\end_layout
+
+\begin_layout Plain Layout
+
+end fun
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fun cuda_sssp_kernel_1(V_ar , E_ar, W, M, C, U)
+\end_layout
+
+\begin_layout Plain Layout
+
+	tid = getThreadID
+\end_layout
+
+\begin_layout Plain Layout
+
+	if M[tid] then
+\end_layout
+
+\begin_layout Plain Layout
+
+		M[tid] = false
+\end_layout
+
+\begin_layout Plain Layout
+
+		for all neighbors nid of tid do
+\end_layout
+
+\begin_layout Plain Layout
+
+			if U[nid]> C[tid] + W[nid] then
+\end_layout
+
+\begin_layout Plain Layout
+
+				U[nid] = C[tid] + W[nid]
+\end_layout
+
+\begin_layout Plain Layout
+
+			end if
+\end_layout
+
+\begin_layout Plain Layout
+
+		end for
+\end_layout
+
+\begin_layout Plain Layout
+
+	end if
+\end_layout
+
+\begin_layout Plain Layout
+
+end fun
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fun cuda_sssp_kernel_2(V_ar, E_ar, W, M, C, U)
+\end_layout
+
+\begin_layout Plain Layout
+
+	tid = getThreadID
+\end_layout
+
+\begin_layout Plain Layout
+
+	if C[tid] > U[tid] then
+\end_layout
+
+\begin_layout Plain Layout
+
+		C[tid] = U[tid]
+\end_layout
+
+\begin_layout Plain Layout
+
+		M[tid] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+	end if
+\end_layout
+
+\begin_layout Plain Layout
+
+	U[tid] = C[tid]
+\end_layout
+
+\begin_layout Plain Layout
+
+end fun
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+APSP- All Pairs Shortest Path
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+All pairs shortest path problem is, given weighted graph G(V, E,W ) with
+ positive weights, find the least weighted path from every vertex to every
+ other vertex in the given graph.
+\end_layout
+
+\begin_layout Itemize
+Use Parallel Floyd-Warshal
+\end_layout
+
+\begin_layout Itemize
+Use and adjacency matrix, since the output is of
+\begin_inset Formula $O(V^{2})$
+\end_inset
+
+ (Not clear why)
+\end_layout
+
+\begin_layout Itemize
+Use 
+\begin_inset Formula $V^{2}$
+\end_inset
+
+threads (in OpenMP this is not possible, a fix is required)
+\end_layout
+
+\begin_layout Itemize
+There is an alternative of Floyd Warshall algorithm using 
+\begin_inset Formula $O(V)$
+\end_inset
+
+ threads, each running a loop of 
+\begin_inset Formula $O(V)$
+\end_inset
+
+ inside it.
+ Authors of the paper found this slower.
+ Evaluate if it's possible to implement this one.
+ 
+\end_layout
+
+\begin_layout Quotation
+[...] it took around 9 seconds as compared to 1 second taken by Algorithm [the
+ following one]
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fun parallel_floyd_warshall( G(V,E,W) )
+\end_layout
+
+\begin_layout Plain Layout
+
+	Create adjacency Matrix A from G(V, E,W )
+\end_layout
+
+\begin_layout Plain Layout
+
+	for k from 1 to V do
+\end_layout
+
+\begin_layout Plain Layout
+
+		for all Elements in the A, where 1 <= i, j <= V in parallel do
+\end_layout
+
+\begin_layout Plain Layout
+
+			A[i,j] = min( A[i,j], A[i,k]+A[k,j])
+\end_layout
+
+\begin_layout Plain Layout
+
+		end for
+\end_layout
+
+\begin_layout Plain Layout
+
+	end for
+\end_layout
+
+\begin_layout Plain Layout
+
+end fun
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Another alternative is to run SSSP for all the vertices.
+\end_layout
+
+\begin_layout Itemize
+This is faster than the Floyd-Warshal algorithm because this one requires
+ a single 
+\begin_inset Formula $O(V)$
+\end_inset
+
+ operation looping over 
+\begin_inset Formula $O(V^{2})$
+\end_inset
+
+ threads which creates extra overhead for context switching the threads
+ on the SIMD processors.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fun apsp_using_sssp( G(V,E,W) )
+\end_layout
+
+\begin_layout Plain Layout
+
+	Create V_ar, E_ar, W_ar from G(V,E,W),
+\end_layout
+
+\begin_layout Plain Layout
+
+	Create mask array M, cost array C and updating cost array U of size V
+\end_layout
+
+\begin_layout Plain Layout
+
+	for S from 1 to V do
+\end_layout
+
+\begin_layout Plain Layout
+
+		M[S] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+		C[S] = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+		while M is not Empty do
+\end_layout
+
+\begin_layout Plain Layout
+
+			for each vertex V in parallel do
+\end_layout
+
+\begin_layout Plain Layout
+
+				cuda_sssp_kernel_1(V_ar, E_ar, W_ar, M, C, U)
+\end_layout
+
+\begin_layout Plain Layout
+
+				cuda_sssp_kernel_2(V_ar, E_ar, W_ar, M, C, U)
+\end_layout
+
+\begin_layout Plain Layout
+
+			end for
+\end_layout
+
+\begin_layout Plain Layout
+
+		end while
+\end_layout
+
+\begin_layout Plain Layout
+
+	end for
+\end_layout
+
+\begin_layout Plain Layout
+
+end fun
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_body

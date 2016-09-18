@@ -1,0 +1,113 @@
+
+//bfs functions
+
+fun bfs(Graph G(V,E), Source S)
+	//init the structures
+	Create vertex array V_ar from all vertices 
+		and edge Array E_ar from all edges in G(V, E)
+	Create F, X and C of size V
+	Initialize F and X to false and C to INF
+	F[S]=true, C[S]=0
+	//iterate until the frontier set is empty
+	while F is not Empty do
+		//update state through a parallel loop.
+		for each vertex V_ar in parallel do
+			//In openMp set the chunk size properly. For all vertex in the graph
+			Bfs_Kernel(V_ar, E_ar, F, X, C)
+		end for
+	end while
+end fun
+
+//FIXME fix this function for an OpenMP implementation
+fun bfs_kernel(V_ar, E_ar, F, X, C)
+	tid = getThreadID //one thread is associated to a vertex
+	//do something if the node is in the frontier set
+	if F[tid] then
+		//set node visited and not anymore in the frontier
+		F[tid]=false,
+		X[tid]=true
+		//update neighbours
+		for all neighbors nid of tid do
+			//check if the neighbor was visited. If not..
+			if !X[nid] then
+				//increase cost and update frontier
+				C[nid]=C[tid]+1
+				F[nid]=true
+			end if
+		end for
+	end if
+end fun
+
+//sssp functions
+
+fun sssp(Graph G(V,E,W), Source Vertex S)
+	Create vertex array V_ar , edge array E_ar and weight array W a from G(V,E,W)
+	Create mask array M, cost array C and Updating cost array U of size V
+	Initialize mask M to false, cost array C and Updating cost array U to INF
+	M[S]=true
+	C[S]=0
+	U[S]=0
+	while M is not Empty do
+		for each vertex V in parallel do
+			sssp_kernel_1(V_ar, E_ar, W, M, C, U)
+			sssp_kernel_2(V_ar, E_ar, W, M, C, U)
+		end for
+	end while
+end fun
+
+fun sssp_kernel_1(V_ar , E_ar, W, M, C, U)
+	tid = getThreadID
+	if M[tid] then
+		M[tid] = false
+		//update neighbor's cost in U
+		for all neighbors nid of tid do
+			if U[nid]> C[tid] + W[nid] then
+				U[nid] = C[tid] + W[nid]
+			end if
+		end for
+	end if
+end fun
+
+fun sssp_kernel_2(V_ar, E_ar, W, M, C, U)
+	tid = getThreadID
+	//update the real cost only we have 
+	//reduced the cost
+	if C[tid] > U[tid] then
+		C[tid] = U[tid]
+		//if the cost of a neighbour is
+		//updated we must explore the neighbor
+		M[tid] = true
+	end if
+	U[tid] = C[tid]
+end fun
+
+//apsp functions
+
+
+fun parallel_floyd_warshall( G(V,E,W) )
+	//create the adjacency matrix
+	Create adjacency Matrix A from G(V, E,W )
+	for k from 1 to V do
+		for all Elements in the A, where 1 ≤ i, j ≤ V in parallel do
+			//build the result of the algorithm in the adjacency matrix
+			A[i,j] = min( A[i,j], A[i,k]+A[k,j])
+		end for
+	end for
+end fun
+
+fun apsp_using_sssp( G(V,E,W) )
+	Create V_ar, E_ar, W_ar from G(V,E,W),
+	Create mask array M, cost array C and updating cost array U of size V
+	for S from 1 to V do
+		//just set source as a different vertex at every iteration
+		//and invoke sssp
+		M[S] = true
+		C[S] = 0
+		while M is not Empty do
+			for each vertex V in parallel do
+				sssp_kernel_1(V_ar, E_ar, W_ar, M, C, U)
+				sssp_kernel_2(V_ar, E_ar, W_ar, M, C, U)
+			end for
+		end while
+	end for
+end fun

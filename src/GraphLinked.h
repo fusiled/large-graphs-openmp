@@ -1,0 +1,48 @@
+
+#ifndef GRAPH_H
+#define GRAPH_H
+
+#include "graph_common.h"
+
+//A vertex knows its neigbors. It knows the number of neighbors and the addresses
+//of the adjacency lists (one for neighbors number and one for the weight)
+typedef struct Vertex
+{
+	Edge * adj_list;
+	Weight * w_adj_list;
+} Vertex;
+
+//A graph is composed by an array of vertices V_ar and and array of edges E_ar.
+//It also knows the number of vertices and edges. E_ar is composed by adjacency
+//lists of the nodes concatenated, so you must insert new edges with care.
+typedef struct GraphLinked
+{
+	Vertex * V_ar;
+	Edge * E_ar; 
+	Weight * W_ar;
+	int n_vert;
+	int n_edge;
+} GraphLinked;
+
+//create a new graph with given vertices and edges. Pass a flag to also set weights.
+GraphLinked * newGraphLinked(int, int, int, int);
+
+//just free the allocated emmory associated to the graph structure.
+void destroyGraphLinked(GraphLinked * gr);
+
+//insert an edge and return its reference.
+void insertEdge(GraphLinked *, int, int, int, int);
+
+//This is important. After you're sure to have set n_neighbor of each vertex properly
+//(sum of n_neighbor of each vertex = n_edge) this function builds references of the adjacency
+//list of each node
+void build_adj_list_pointers(GraphLinked *, int *);
+
+
+int get_n_neighbor(GraphLinked *, int);
+
+
+//print every node and its neighbors
+void printGraph(GraphLinked *);
+
+#endif
