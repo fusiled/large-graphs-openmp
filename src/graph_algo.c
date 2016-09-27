@@ -58,7 +58,7 @@ void bfs(Graph * gr, int S)
 	}
 	F[S]=1;
 	C[S]=0;
-	while(isEmpty(F, getVertexNumber(gr))!=0)
+	while(isEmpty(F, getVertexNumber(gr))!=1)
 	{
 		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
 		{
@@ -109,7 +109,7 @@ void sssp(Graph * gr, int S)
 	M[S]=1;
 	C[S]=0;
 	U[S]=0;
-	while(isEmpty(M, getVertexNumber(gr))!=0)
+	while(isEmpty(M, getVertexNumber(gr))!=1)
 	{
 		for(int i=0; i<getVertexNumber(gr); i++)
 		{
@@ -170,7 +170,7 @@ void apsp_sssp(Graph * gr)
 		M[S]=1;
 		C[S]=0;
 		U[S]=0;
-		while(isEmpty(M, getVertexNumber(gr))!=0)
+		while(isEmpty(M, getVertexNumber(gr))!=1)
 		{
 			for(int i=0; i<getVertexNumber(gr); i++)
 			{
