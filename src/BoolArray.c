@@ -8,6 +8,22 @@
 
 int get_n_chunks(int);
 
+//get a copy of the chunk related to the index
+unsigned char get_chunk(BoolArray *, int);
+
+unsigned char get_chunk(BoolArray * bArr, int index)
+{
+	if(index>=getSize(bArr))
+	{
+		#ifdef DEBUG
+		printf("index out of bounds, returning 0");
+		#endif
+		return 0;
+	}
+	int chunk_index = index/CHAR_SIZE;
+	return *( (bArr->array)+chunk_index );
+}
+
 
 int get_n_chunks(int size)
 {
@@ -18,7 +34,7 @@ BoolArray * newBoolArray(int size)
 {
 	BoolArray * ret_ref = malloc(sizeof(BoolArray));
 	int array_dim=get_n_chunks(size);
-	ret_ref -> array = malloc(sizeof(unsigned char)*array_dim);
+	ret_ref -> array = calloc(sizeof(unsigned char),array_dim);
 	ret_ref -> size = size;
 	return ret_ref;
 }
@@ -34,7 +50,7 @@ unsigned char getValue(BoolArray * bArr,int index)
 {
 	int chunk_index = index/CHAR_SIZE;
 	unsigned char chunk = *( (bArr->array)+chunk_index );
-	int little_index = index- chunk_index * CHAR_SIZE;
+	int little_index = index - chunk_index * CHAR_SIZE;
 	#ifdef DEBUG
 		if(little_index>=CHAR_SIZE || little_index<0)
 		{
@@ -42,8 +58,7 @@ unsigned char getValue(BoolArray * bArr,int index)
 			return -1;
 		}
 	#endif
-	chunk = chunk << (CHAR_SIZE - little_index);
-	return chunk >> CHAR_SIZE;
+	return (chunk & 1U<<little_index)>>little_index;
 }
 
 
@@ -57,9 +72,6 @@ void setValue(BoolArray * bArr, int index, unsigned char value)
 	//nothing to do
 	if(getValue(bArr,index)==value)
 	{
-		#ifdef DEBUG
-			printf("index out of bounds. ignoring set invokation\n");
-		#endif
 		return;
 	}
 	if(index >= bArr->size)
@@ -96,4 +108,28 @@ void printBoolArray(BoolArray * bArr)
 		printf("%x ", (bArr->array)[i] );
 	}
 	printf("\n");
+}
+
+
+int getSize(BoolArray * bArr)
+{
+	return bArr->size;
+}
+
+unsigned char isEmpty(BoolArray * bArr)
+{
+	char empty_flag = 1;
+	#pragma omp parallel for
+	for(int i=0; i < empty_flag*getSize(bArr); i=i+CHAR_SIZE)
+	{
+		if(get_chunk(bArr, i)!=0)
+		{
+			empty_flag = 0;
+		}
+	}
+	if (empty_flag==0)
+	{
+		return UNS_FALSE;
+	}
+	return UNS_TRUE;
 }

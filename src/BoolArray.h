@@ -23,4 +23,8 @@ void setValue(BoolArray *,int, unsigned char);
 
 void printBoolArray(BoolArray *);
 
+int getSize(BoolArray *);
+
+unsigned char isEmpty(BoolArray *);
+
 #endif
