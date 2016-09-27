@@ -50,4 +50,17 @@ int getVertexNumber(Graph *);
 
 int getWeight(Graph *, int, int);
 
+
+Graph * duplicateGraph(Graph *);
+
+void bfs(Graph *, int);
+
+void sssp(Graph *, int);
+
+void apsp_fw(Graph *);
+
+void apsp_sssp(Graph *);
+
+
+
 #endif

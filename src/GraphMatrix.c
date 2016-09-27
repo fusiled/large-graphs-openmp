@@ -4,6 +4,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
+
+int min(int x, int y)
+{
+	return x < y ? x : y; 
+}
+
 
 GraphMatrix * newGraphMatrix(int n_vert, int with_weight)
 {
@@ -106,4 +114,40 @@ int getVertexNumberMatrix(GraphMatrix * gr)
 int getWeightMatrix(GraphMatrix * gr, int head, int tail)
 {
 	return gr->W_ma[head][tail];
+}
+
+
+GraphMatrix * duplicateGraphMatrix(GraphMatrix * gr)
+{
+	GraphMatrix * copy = malloc(sizeof(GraphMatrix));
+	copy->n_vert = gr->n_vert;
+	copy-> with_weight = gr->with_weight;
+	copy->W_ma = malloc(sizeof(int*)*getVertexNumberMatrix(gr));
+	for(int i=0; i<getVertexNumberMatrix(gr); i++)
+	{
+		copy->W_ma[i]=malloc(sizeof(int)*getVertexNumberMatrix(gr));
+		memcpy(copy->W_ma[i], gr->W_ma[i], sizeof(int)*getVertexNumberMatrix(gr));
+	}
+	return copy;
+}
+
+void apsp_fw_matrix(GraphMatrix * gr)
+{
+	int ** result = malloc(sizeof(int *)*getVertexNumberMatrix(gr));
+	for(int i=0; i < getVertexNumberMatrix(gr); i++)
+	{
+		result[i] = malloc(sizeof(int)*getVertexNumberMatrix(gr));
+		memcpy(result[i], gr->W_ma[i], sizeof(int)*getVertexNumberMatrix(gr));
+	}
+	for(int k=0; k<getVertexNumberMatrix(gr); k++)
+	{
+		#pragma omp parallel for collapse(2)
+		for(int i=0; i<getVertexNumberMatrix(gr); i++)
+		{
+			for(int j=0; j<getVertexNumberMatrix(gr); j++)
+			{
+				result[i][j]= min(result[i][j], result[i][k]+result[k][j]);
+			}
+		}
+	}
 }

@@ -26,3 +26,8 @@ int getVertexNumberMatrix(GraphMatrix *);
 
 
 int getWeightMatrix(GraphMatrix *, int, int);
+
+GraphMatrix * duplicateGraphMatrix(GraphMatrix *);
+
+
+void apsp_fw_matrix(GraphMatrix *);

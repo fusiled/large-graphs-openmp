@@ -3,8 +3,6 @@
 
 #include "Graph.h"
 #include "parse_utils.h"
-#include "graph_algo.h"
-#include "graph_common.h"
 
 #include <time.h>
 #include <stdlib.h>

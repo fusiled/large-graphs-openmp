@@ -3,8 +3,6 @@
 
 #include "Graph.h"
 
-#include "GraphMatrix.h"
-
 #include <stdio.h>
 #include <omp.h>
 #include <stdlib.h>
@@ -16,14 +14,6 @@ void bfs_kernel(int, Graph *, char *, char *, int *);
 
 void sssp_kernel_1(int, Graph *, char *, int *, int *);
 void sssp_kernel_2(int, Graph *, char *, int *, int *);
-
-
-int min(int x, int y)
-{
-	return x < y ? x : y; 
-}
-
-int ** apsp_fw_matrix(GraphMatrix *);
 
 char isEmpty(char * F, int size)
 {
@@ -43,7 +33,7 @@ char isEmpty(char * F, int size)
 	return 1;
 }
 
-void bfs(Graph * gr, int S)
+void bfs_common(Graph * gr, int S)
 {
 	//instance and init value
 	char * F = malloc(sizeof(char)*getVertexNumber(gr));
@@ -60,7 +50,7 @@ void bfs(Graph * gr, int S)
 	C[S]=0;
 	while(isEmpty(F, getVertexNumber(gr))!=0)
 	{
-		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
+		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
 		{
 			if(F[node_id])
 			{
@@ -91,10 +81,11 @@ void bfs_kernel(int node_id, Graph * gr, char * F, char * X, int * C)
 			F[nid]=1;
 		}
 	}
+	free(neighbors);
 }
 
 
-void sssp(Graph * gr, int S)
+void sssp_common(Graph * gr, int S)
 {
 	char * M = malloc(sizeof(char)*getVertexNumber(gr));
 	int * C = malloc(sizeof(int)*getVertexNumber(gr));
@@ -139,6 +130,7 @@ void sssp_kernel_1(int node_id, Graph * gr, char * M, int * C, int * U)
 				U[i] = C[node_id] + getWeight(gr,node_id,neighbor);
 			}
 		}
+		free(neighbors);
 	}
 }
 
@@ -153,7 +145,7 @@ void sssp_kernel_2(int node_id, Graph * gr, char * M, int * C, int * U)
 }
 
 
-void apsp_sssp(Graph * gr)
+void apsp_sssp_common(Graph * gr)
 {
 	char * M = malloc(sizeof(char)*getVertexNumber(gr));
 	int * C = malloc(sizeof(int)*getVertexNumber(gr));
@@ -182,46 +174,4 @@ void apsp_sssp(Graph * gr)
 	free(M);
 	free(C);
 	free(U);
-}
-
-
-int ** apsp_fw(Graph * gr)
-{
-	switch(gr->graph_type)
-	{
-		case GRAPH_TYPE_ADJ_LIST: 
-			printf("Avoid to use asps_fw with adj list.. skipping");
-		break;
-		case GRAPH_TYPE_MATRIX:
-			return apsp_fw_matrix(gr->graph);
-		break;
-		default:
-			printf("Unknow GRAPH_TYPE parameter. Exiting\n");
-			exit(-1);
-	}
-}
-
-
-int ** apsp_fw_matrix(GraphMatrix * gr)
-{
-	//make a trick. Access to the matrix in case we're using GRAPH_TYPE_MATRIX
-	//copy the adjacecny matrix
-	int ** result = malloc(sizeof(int *)*getVertexNumberMatrix(gr));
-	for(int i=0; i < getVertexNumberMatrix(gr); i++)
-	{
-		result[i] = malloc(sizeof(int)*getVertexNumberMatrix(gr));
-		memcpy(result[i], gr->W_ma[i], sizeof(int)*getVertexNumberMatrix(gr));
-	}
-	for(int k=0; k<getVertexNumberMatrix(gr); k++)
-	{
-		#pragma omp parallel for collapse(2)
-		for(int i=0; i<getVertexNumberMatrix(gr); i++)
-		{
-			for(int j=0; j<getVertexNumberMatrix(gr); j++)
-			{
-				result[i][j]= min(result[i][j], result[i][k]+result[k][j]);
-			}
-		}
-	}
-	return result;
 }

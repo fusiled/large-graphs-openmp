@@ -1,12 +1,14 @@
 
 #include "Graph.h"
 #include "graph_common.h"
+#include "graph_algo.h"
 
 #include "GraphLinked.h"
 #include "GraphMatrix.h"
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 Graph * newGraph(int n_vert, int n_edge, int with_weight, int graph_type)
 {
@@ -219,4 +221,63 @@ int getWeight(Graph * gr, int head, int tail)
 			printf("Unknow GRAPH_TYPE parameter (Probably it has been corrupted). Exiting\n");
 			exit(-1);
 	}	
+}
+
+
+Graph * duplicateGraph(Graph * gr)
+{
+	Graph * copy = malloc(sizeof(Graph));
+	switch(gr->graph_type)
+	{
+		case GRAPH_TYPE_ADJ_LIST: 
+			//TODO NO IMPLEMENTED
+			//copy->graph = duplicateGraphLinked(gr->graph);
+			printf("GRAPH_TYPE_ADJ_LIST duplication is not implemented\n");
+			exit(-1);
+		break;
+		case GRAPH_TYPE_MATRIX:
+			copy->graph = duplicateGraphMatrix(gr->graph);
+		break;
+		default:
+			printf("Unknow GRAPH_TYPE parameter (Probably it has been corrupted). Exiting\n");
+			exit(-1);
+	}
+	copy->linked_buffer = malloc(sizeof(int)*getVertexNumber(gr));
+	memcpy(copy->linked_buffer, gr->linked_buffer, sizeof(int)*getVertexNumber(gr));
+	copy->graph_type = gr->graph_type;
+	copy->finalized = gr->finalized;
+	return copy;
+}
+
+
+void bfs(Graph * gr, int S)
+{
+	bfs_common(gr, S);
+}
+
+
+void sssp(Graph * gr, int S)
+{
+	sssp_common(gr, S);
+}
+
+void apsp_fw(Graph * gr)
+{
+	switch(gr->graph_type)
+	{
+		case GRAPH_TYPE_ADJ_LIST: 
+			printf("fw with adj is not implemented yet. Skipping..\n");
+		break;
+		case GRAPH_TYPE_MATRIX:
+			apsp_fw_matrix(gr->graph);
+		break;
+		default:
+			printf("Unknow GRAPH_TYPE parameter (Probably it has been corrupted). Exiting\n");
+			exit(-1);
+	}
+}
+
+void apsp_sssp(Graph * gr)
+{
+	apsp_sssp_common(gr);
 }

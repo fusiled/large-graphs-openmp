@@ -51,4 +51,7 @@ int getVertexNumberLinked(GraphLinked *);
 
 int getWeightLinked(GraphLinked *, int, int);
 
+
+GraphLinked * duplicateGraphLinked(GraphLinked *);
+
 #endif

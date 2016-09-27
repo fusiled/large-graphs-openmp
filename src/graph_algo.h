@@ -6,13 +6,11 @@
 
 #include <stdio.h>
 
-void bfs(Graph *, int);
+void bfs_common(Graph *, int);
 
-void sssp(Graph *, int);
+void sssp_common(Graph *, int);
 
-int ** apsp_fw(Graph *);
-
-void apsp_sssp(Graph *);
+void apsp_sssp_common(Graph *);
 
 
 #endif
