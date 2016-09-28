@@ -16,10 +16,13 @@
 
 
 
-Graph * analyze_build_node(FILE *, int);
+Graph * analyze_build_node_challenge_9(FILE *, int, int);
+void analyze_build_edge_challenge_9(FILE *, Graph *);
+
+Graph * analyze_build_node(FILE *, int, int);
 void analyze_build_edge(FILE *, Graph *);
 
-Graph * parseFile(char * path, int graph_type)
+Graph * parseFileChallenge9(char * path, int graph_type, int with_weight)
 {
 	//open the file
 	FILE * fp = fopen(path, "r");
@@ -30,18 +33,18 @@ Graph * parseFile(char * path, int graph_type)
 	}
 	//build the graph using analyzeFile
 	Graph * gr=NULL;
-	gr = analyze_build_node(fp, graph_type);
+	gr = analyze_build_node_challenge_9(fp, graph_type, with_weight);
 	if(gr==NULL)
 	{
 		printf("Something is wrong with the node building\n");
 		exit(1);
 	}
-	analyze_build_edge(fp, gr);
+	analyze_build_edge_challenge_9(fp, gr);
 	fclose(fp);
 	return gr;
 }
 
-Graph * analyze_build_node(FILE * fp, int graph_type)
+Graph * analyze_build_node_challenge_9(FILE * fp, int graph_type, int with_weight)
 {	
 	Graph * gr;
 	//start from the beginning of the file
@@ -69,7 +72,7 @@ Graph * analyze_build_node(FILE * fp, int graph_type)
 				int n_vert_buf = atoi(buf);
 				buf = strtok(NULL, SPACE_STRING);
 				int n_edge_buf = atoi(buf);
-				gr = newGraph(n_vert_buf, n_edge_buf, GRAPH_WITH_WEIGHT, graph_type);
+				gr = newGraph(n_vert_buf, n_edge_buf, with_weight, graph_type);
 				if(gr==NULL)
 				{
 					free(buf);
@@ -86,7 +89,6 @@ Graph * analyze_build_node(FILE * fp, int graph_type)
 				line_copy = strdup(line);
 				//get a
 				buf = strtok(line_copy, SPACE_STRING);
-				//get tail
 				buf = strtok(NULL, SPACE_STRING);
 				int head = atoi(buf);
 				head -= 1;
@@ -107,7 +109,7 @@ Graph * analyze_build_node(FILE * fp, int graph_type)
 }
 
 
-void analyze_build_edge(FILE * fp, Graph * gr)
+void analyze_build_edge_challenge_9(FILE * fp, Graph * gr)
 {
 	if(gr == NULL)
 	{
@@ -162,24 +164,106 @@ void analyze_build_edge(FILE * fp, Graph * gr)
 }
 
 
-FILE * genGraphFile(unsigned int n_vert, unsigned int n_edge, char * path)
+Graph * parseFile(char * path, int graph_type, int with_weight)
 {
-	FILE * fp = fopen(path, "w");
+	//open the file
+	FILE * fp = fopen(path, "r");
 	if(fp==NULL)
 	{
-		printf("genGraphFile cannot create file!");
-		return NULL;
+		printf("Error on opening the file\n");
+		exit(1);
 	}
-	fprintf(fp, "c genGraphFile utility\n");
-	fprintf(fp, "p sp %d %d\n", n_vert, n_edge);
-	for(int i=1; i<=n_edge; i++)
+	//build the graph using analyzeFile
+	Graph * gr=NULL;
+	gr = analyze_build_node(fp, graph_type, with_weight);
+	if(gr==NULL)
 	{
-		int head, tail, weight;
-		fprintf(fp, "a %d %d %d\n", head, tail, weight);
+		printf("Something is wrong with the node building\n");
+		exit(1);
 	}
+	analyze_build_edge(fp, gr);
+	fclose(fp);
+	return gr;
+}
 
+Graph * analyze_build_node(FILE * fp, int graph_type, int with_weight)
+{	
+	Graph * gr;
+	//start from the beginning of the file
 	rewind(fp);
-	return fp;
+	//init file vars
+	size_t line_size = 0;
+	ssize_t read;
+	char * line = NULL;
+	getline(&line, &line_size, fp);
+	int n_vert = atoi(line);
+	int n_edge = 0;
+	//loop = read all the lines of the file
+	while( read = getline(&line, &line_size, fp )!= -1 )
+	{
+		if(atoi(line)==-1)
+		{
+			break;
+		}
+		n_edge++;
+	}
+	gr = newGraph(n_vert, n_edge, with_weight, graph_type);
+	rewind(fp);
+	//skip first line
+	getline(&line, &line_size, fp);
+	//loop = read all the lines of the file
+	while( read = getline(&line, &line_size, fp )!= -1 )
+	{
+		if(atoi(line)==-1)
+		{
+			break;
+		}
+		char * line_copy =strdup(line);
+		char * buf =strtok(line_copy, SPACE_STRING);
+		int head = atoi(buf);
+		if(graph_type==GRAPH_TYPE_ADJ_LIST)
+			{
+				increaseNeighborNumber(gr, head);
+			}
+		free(line_copy);
+	}
+	finalizeVertices(gr);
+	return gr;
 }
 
 
+void analyze_build_edge(FILE * fp, Graph * gr)
+{
+	if(gr == NULL)
+	{
+		printf("You must call the function analyzeFile with PARSE_TYPE_BUILD_NODE before calling it with PARSE_TYPE_BUILD_EDGES");
+		exit(1);
+	}
+	//start from the beginning of the file
+	rewind(fp);
+	//init file vars
+	size_t line_size = 0;
+	ssize_t read;
+	char * line = NULL;
+	//skip first line
+	getline(&line, &line_size, fp );
+	//loop = read all the lines of the file
+	while( read = getline(&line, &line_size, fp )!= -1 )
+	{
+		if(atoi(line)==-1)
+		{
+			break;
+		}
+		char * line_copy =strdup(line);
+		char * buf =strtok(line_copy, SPACE_STRING);
+		int head = atoi(buf);
+		buf = strtok(line_copy, SPACE_STRING);
+		int tail = atoi(buf);
+		buf = strtok(line_copy, SPACE_STRING);
+		int weight = atoi(buf);
+		insertEdge(gr, head, tail, weight);
+
+		free(line_copy);
+	}
+	finalizeEdges(gr);
+}

@@ -1,7 +1,6 @@
 
 #ifndef GRAPH_MATRIX_H
-#define GRAPH_MATRIX_H value
-#endif
+#define GRAPH_MATRIX_H
 
 typedef struct GraphMatrixStruct
 {
@@ -31,3 +30,5 @@ GraphMatrix * duplicateGraphMatrix(GraphMatrix *);
 
 
 void apsp_fw_matrix(GraphMatrix *);
+
+#endif

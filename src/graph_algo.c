@@ -35,12 +35,9 @@ void bfs_common(Graph * gr, int S)
 	{
 		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
 		{
-			if(getValue(F,node_id)==UNS_TRUE)
-			{
-				#pragma omp task
-				bfs_kernel(node_id, gr, F, X, C);
-				#pragma omp nowait
-			}
+			#pragma omp task
+			bfs_kernel(node_id, gr, F, X, C);
+			#pragma omp nowait
 		}
 	}
 	destroyBoolArray(F);
@@ -52,19 +49,22 @@ void bfs_common(Graph * gr, int S)
 void bfs_kernel(int node_id, Graph * gr, BoolArray * F, char * X, int * C)
 {
 	setValue(F,node_id, UNS_FALSE);
-	X[node_id]=1;
-	int n_neighbor;
-	int * neighbors = getNeighbors(gr, node_id, &n_neighbor);
-	for(int i=0; i < n_neighbor; i++ )
+	if(getValue(F,node_id)==UNS_TRUE)
 	{
-		int nid = neighbors[i];
-		if(X[nid]==0)
+		X[node_id]=1;
+		int n_neighbor;
+		int * neighbors = getNeighbors(gr, node_id, &n_neighbor);
+		for(int i=0; i < n_neighbor; i++ )
 		{
-			C[nid]=C[node_id]+1;
-			setValue(F,nid,UNS_TRUE);
+			int nid = neighbors[i];
+			if(X[nid]==0)
+			{
+				C[nid]=C[node_id]+1;
+				setValue(F,nid,UNS_TRUE);
+			}
 		}
+		free(neighbors);
 	}
-	free(neighbors);
 }
 
 

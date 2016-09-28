@@ -8,10 +8,9 @@
 
 
 //parse the .gr file at the given path. It returns a Graph structure
-Graph * parseFile(char *, int);
+Graph * parseFileChallenge9(char *, int, int);
 
-//generate a random graph with the given number of nodes and edges
-FILE * genGraphFile(unsigned int, unsigned int, char *);
+Graph * parseFile(char *, int, int);
 
 
 #endif

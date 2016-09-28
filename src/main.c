@@ -12,9 +12,12 @@ int main(int argc, char const *argv[])
 {
 	if(argc == 3)
 	{
-		int n_threads = atoi(argv[2]);
+		int n_threads = atoi(argv[1]);
 		#ifdef _OPENMP
 			omp_set_num_threads(n_threads);
+			#ifdef DEBUG
+				printf("Starting with %d threads\n", omp_get_max_threads() );
+			#endif
 		#else
 			printf("OpenMp is not enabled. n_threads will be ignored. Try to recompile your code with the proper flags");
 		#endif
@@ -24,7 +27,7 @@ int main(int argc, char const *argv[])
 		printf("Wrong parameters. Pass FIRST the number of threads, then the path to the graph file!\n");
 		return -1;
 	}
-	Graph * gr =parseFile(argv[2], GRAPH_TYPE_MATRIX );
+	Graph * gr =parseFile(argv[2], GRAPH_TYPE_MATRIX, GRAPH_WITH_WEIGHT );
 	//printGraph(gr);
 	printf("starting bfs\n");
 	clock_t tic, toc;

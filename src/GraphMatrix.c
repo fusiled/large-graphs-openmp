@@ -12,7 +12,6 @@ int min(int x, int y)
 	return x < y ? x : y; 
 }
 
-
 GraphMatrix * newGraphMatrix(int n_vert, int with_weight)
 {
 	GraphMatrix * gr = malloc(sizeof(GraphMatrix));
