@@ -125,6 +125,8 @@ void analyze_build_edge_challenge_9(FILE * fp, Graph * gr)
 	//loop = read all the lines of the file
 	while( read = getline(&line, &line_size, fp )!= -1 )
 	{
+		#pragma omp task
+		{
 		char * line_copy=NULL;
 		char * buf=NULL;
 		//decide what to do with a line of file
@@ -159,6 +161,8 @@ void analyze_build_edge_challenge_9(FILE * fp, Graph * gr)
 				printf("Unknown rule ' %s '. Ignoring it..\n", line );
 		}
 		free(line_copy);
+		}
+		#pragma omp nowait
 	}
 	finalizeEdges(gr);
 }
@@ -248,22 +252,29 @@ void analyze_build_edge(FILE * fp, Graph * gr)
 	//skip first line
 	getline(&line, &line_size, fp );
 	//loop = read all the lines of the file
-	while( read = getline(&line, &line_size, fp )!= -1 )
+	char out_flag = 0;
+	while( read = getline(&line, &line_size, fp )!= -1 && out_flag==0)
 	{
-		if(atoi(line)==-1)
+		#pragma omp task private(line) shared(out_flag)
 		{
-			break;
+			if(atoi(line)==-1)
+			{
+				out_flag=1;
+			}
+			else
+			{
+				char * line_copy =strdup(line);
+				char * buf = strtok(line_copy, SPACE_STRING);
+				int head = atoi(buf);
+				buf = strtok(line_copy, SPACE_STRING);
+				int tail = atoi(buf);
+				buf = strtok(line_copy, SPACE_STRING);
+				int weight = atoi(buf);
+				insertEdge(gr, head, tail, weight);
+				free(line_copy);
+			}
 		}
-		char * line_copy =strdup(line);
-		char * buf =strtok(line_copy, SPACE_STRING);
-		int head = atoi(buf);
-		buf = strtok(line_copy, SPACE_STRING);
-		int tail = atoi(buf);
-		buf = strtok(line_copy, SPACE_STRING);
-		int weight = atoi(buf);
-		insertEdge(gr, head, tail, weight);
-
-		free(line_copy);
+		#pragma omp nowait
 	}
 	finalizeEdges(gr);
 }
