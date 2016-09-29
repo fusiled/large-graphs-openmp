@@ -4,13 +4,19 @@
 #include "Graph.h"
 #include "parse_utils.h"
 
+#include <string.h>
 #include <time.h>
 #include <stdlib.h>
 #include <omp.h>
 
+#define CHAL9 0
+#define RANDGRAPH 1
+
+void printHelp();
+
 int main(int argc, char const *argv[])
 {
-	if(argc == 3)
+	if(argc == 5)
 	{
 		int n_threads = atoi(argv[1]);
 		#ifdef _OPENMP
@@ -24,11 +30,26 @@ int main(int argc, char const *argv[])
 	}
 	else
 	{
-		printf("Wrong parameters. Pass FIRST the number of threads, then the path to the graph file!\n");
+		printf("WRONG PARAMETERS D:\n");
+		printHelp();
 		return -1;
 	}
-	Graph * gr =parseFileChallenge9(argv[2], GRAPH_TYPE_ADJ_LIST, GRAPH_WITH_WEIGHT );
-	//printGraph(gr);
+	Graph * gr;
+	char * path = strdup(argv[2]);
+	int graph_type = atoi(argv[4]);
+	switch( atoi(argv[3]) )
+	{
+		case CHAL9: 
+			gr = parseFileChallenge9(path, graph_type, GRAPH_WITH_WEIGHT ); 
+		break;
+		case RANDGRAPH:
+			gr = parseFile(path, graph_type, GRAPH_WITH_WEIGHT );
+		break;
+		default:
+			printf("Unknown parseType value. See help. Exiting");
+		return -1;
+	}
+	free(path);
 	printf("starting bfs\n");
 	clock_t tic, toc;
 	/*
@@ -69,13 +90,22 @@ int main(int argc, char const *argv[])
 	double apsp_sssp_time = ( ((double)(toc-tic)) /CLOCKS_PER_SEC);
 	printf("apsp_sssp: %f seconds\n", apsp_sssp_time );
 	printf("apsp_sssp ended\n");
-	/*printf("apsp_fw begin\n");
+	printf("apsp_fw begin\n");
 	tic = clock();
 	apsp_fw(gr);
 	toc = clock();
 	double apsp_fw_time = ( ((double)(toc-tic)) /CLOCKS_PER_SEC);
 	printf("apsp_fw: %f seconds\n", apsp_fw_time );
-	printf("apsp_fw ended\n");*/
+	printf("apsp_fw ended\n");
 	destroyGraph(gr);
 	return 0;
+}
+
+
+void printHelp()
+{
+	printf("Usage: EXEC_FILE n_threads path_to_graph parser_type graph_type\n");
+	printf("-n_threads: the number of threads to use\n-path_to_graph: the path to the graph\n");
+	printf("-parser_type: 0 use challenge9 parser, 1 the randgraph parser\n");
+	printf("graph_type: 0 compact adjacency list, 1 matrix\n");
 }

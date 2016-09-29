@@ -130,17 +130,21 @@ GraphMatrix * duplicateGraphMatrix(GraphMatrix * gr)
 	return copy;
 }
 
-void apsp_fw_matrix(GraphMatrix * gr)
+int ** apsp_fw_matrix(GraphMatrix * gr)
 {
 	int ** result = malloc(sizeof(int *)*getVertexNumberMatrix(gr));
 	for(int i=0; i < getVertexNumberMatrix(gr); i++)
 	{
-		result[i] = malloc(sizeof(int)*getVertexNumberMatrix(gr));
-		memcpy(result[i], gr->W_ma[i], sizeof(int)*getVertexNumberMatrix(gr));
+		#pragma omp task
+		{
+			result[i] = malloc(sizeof(int)*getVertexNumberMatrix(gr));
+			memcpy(result[i], gr->W_ma[i], sizeof(int)*getVertexNumberMatrix(gr));
+		}
+		#pragma omp nowait
 	}
 	for(int k=0; k<getVertexNumberMatrix(gr); k++)
 	{
-		#pragma omp parallel for collapse(2)
+		#pragma omp parallel for collapse(2) shared(result, gr)
 		for(int i=0; i<getVertexNumberMatrix(gr); i++)
 		{
 			for(int j=0; j<getVertexNumberMatrix(gr); j++)
@@ -149,4 +153,5 @@ void apsp_fw_matrix(GraphMatrix * gr)
 			}
 		}
 	}
+	return result;
 }

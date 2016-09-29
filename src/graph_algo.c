@@ -22,7 +22,7 @@ void bfs_common(Graph * gr, int S)
 	BoolArray * F = newBoolArray(getVertexNumber(gr));
 	BoolArray * X = newBoolArray(getVertexNumber(gr));
 	int * C = malloc(sizeof(int)*getVertexNumber(gr));
-	#pragma omp parallel for
+	#pragma omp parallel for shared(F,X,C)
 	for(int i=0; i<getVertexNumber(gr); i++)
 	{
 		setValue(F,i, UNS_FALSE);
@@ -73,7 +73,7 @@ void sssp_common(Graph * gr, int S)
 	BoolArray * M = newBoolArray(getVertexNumber(gr));
 	int * C = malloc(sizeof(int)*getVertexNumber(gr));
 	int * U = malloc(sizeof(int)*getVertexNumber(gr));
-	#pragma omp parallel for
+	#pragma omp parallel for shared(M,U,C)
 	for(int i=0; i<getVertexNumber(gr); i++)
 	{
 		setValue(M,i,UNS_FALSE);
@@ -87,8 +87,12 @@ void sssp_common(Graph * gr, int S)
 	{
 		for(int i=0; i<getVertexNumber(gr); i++)
 		{
-			sssp_kernel_1(i, gr, M, C, U);
-			sssp_kernel_2(i, gr, M, C, U);
+			#pragma omp task
+			{
+				sssp_kernel_1(i, gr, M, C, U);
+				sssp_kernel_2(i, gr, M, C, U);
+			}
+			#pragma omp nowait
 		}
 	}
 	destroyBoolArray(M);
@@ -130,31 +134,8 @@ void sssp_kernel_2(int node_id, Graph * gr, BoolArray * M, int * C, int * U)
 
 void apsp_sssp_common(Graph * gr)
 {
-	BoolArray * M = newBoolArray(getVertexNumber(gr));
-	int * C = malloc(sizeof(int)*getVertexNumber(gr));
-	int * U = malloc(sizeof(int)*getVertexNumber(gr));
 	for(int S=0; S < getVertexNumber(gr); S++)
 	{
-		#pragma omp parallel for
-		for(int i=0; i<getVertexNumber(gr); i++)
-		{
-			setValue(M,i,UNS_FALSE);
-			C[i]=INF;
-			U[i]=INF;
-		}
-		setValue(M,S,UNS_TRUE);
-		C[S]=0;
-		U[S]=0;
-		while(isEmpty(M)!=UNS_TRUE)
-		{
-			for(int i=0; i<getVertexNumber(gr); i++)
-			{
-				sssp_kernel_1(i, gr, M, C, U);
-				sssp_kernel_2(i, gr, M, C, U);
-			}
-		}
+		sssp_common(gr, S);
 	}
-	destroyBoolArray(M);
-	free(C);
-	free(U);
 }
