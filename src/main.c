@@ -19,7 +19,7 @@ int main(int argc, char const *argv[])
 				printf("Starting with %d threads\n", omp_get_max_threads() );
 			#endif
 		#else
-			printf("OpenMp is not enabled. n_threads will be ignored. Try to recompile your code with the proper flags");
+			printf("OpenMp is not enabled. n_threads will be ignored. Try to recompile if you need it\n");
 		#endif
 	}
 	else
@@ -27,7 +27,7 @@ int main(int argc, char const *argv[])
 		printf("Wrong parameters. Pass FIRST the number of threads, then the path to the graph file!\n");
 		return -1;
 	}
-	Graph * gr =parseFile(argv[2], GRAPH_TYPE_MATRIX, GRAPH_WITH_WEIGHT );
+	Graph * gr =parseFileChallenge9(argv[2], GRAPH_TYPE_ADJ_LIST, GRAPH_WITH_WEIGHT );
 	//printGraph(gr);
 	printf("starting bfs\n");
 	clock_t tic, toc;
@@ -69,13 +69,13 @@ int main(int argc, char const *argv[])
 	double apsp_sssp_time = ( ((double)(toc-tic)) /CLOCKS_PER_SEC);
 	printf("apsp_sssp: %f seconds\n", apsp_sssp_time );
 	printf("apsp_sssp ended\n");
-	printf("apsp_fw begin\n");
+	/*printf("apsp_fw begin\n");
 	tic = clock();
 	apsp_fw(gr);
 	toc = clock();
 	double apsp_fw_time = ( ((double)(toc-tic)) /CLOCKS_PER_SEC);
 	printf("apsp_fw: %f seconds\n", apsp_fw_time );
-	printf("apsp_fw ended\n");
+	printf("apsp_fw ended\n");*/
 	destroyGraph(gr);
 	return 0;
 }

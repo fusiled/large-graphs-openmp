@@ -11,7 +11,7 @@
 
 #define INF -1
 
-void bfs_kernel(int, Graph *, BoolArray *, char *, int *);
+void bfs_kernel(int, Graph *, BoolArray *, BoolArray *, int *);
 
 void sssp_kernel_1(int, Graph *, BoolArray *, int *, int *);
 void sssp_kernel_2(int, Graph *, BoolArray *, int *, int *);
@@ -20,13 +20,13 @@ void bfs_common(Graph * gr, int S)
 {
 	//instance and init value
 	BoolArray * F = newBoolArray(getVertexNumber(gr));
-	char * X = malloc(sizeof(char)*getVertexNumber(gr));
+	BoolArray * X = newBoolArray(getVertexNumber(gr));
 	int * C = malloc(sizeof(int)*getVertexNumber(gr));
 	#pragma omp parallel for
 	for(int i=0; i<getVertexNumber(gr); i++)
 	{
 		setValue(F,i, UNS_FALSE);
-		X[i]=0;
+		setValue(X,i, UNS_FALSE);
 		C[i]=INF;
 	}
 	setValue(F,S, UNS_TRUE);
@@ -41,23 +41,23 @@ void bfs_common(Graph * gr, int S)
 		}
 	}
 	destroyBoolArray(F);
-	free(X);
+	destroyBoolArray(X);
 	free(C);
 
 }
 
-void bfs_kernel(int node_id, Graph * gr, BoolArray * F, char * X, int * C)
+void bfs_kernel(int node_id, Graph * gr, BoolArray * F, BoolArray * X, int * C)
 {
 	setValue(F,node_id, UNS_FALSE);
 	if(getValue(F,node_id)==UNS_TRUE)
 	{
-		X[node_id]=1;
+		setValue(X,node_id,UNS_TRUE);
 		int n_neighbor;
 		int * neighbors = getNeighbors(gr, node_id, &n_neighbor);
 		for(int i=0; i < n_neighbor; i++ )
 		{
 			int nid = neighbors[i];
-			if(X[nid]==0)
+			if(getValue(X,nid)==UNS_FALSE)
 			{
 				C[nid]=C[node_id]+1;
 				setValue(F,nid,UNS_TRUE);

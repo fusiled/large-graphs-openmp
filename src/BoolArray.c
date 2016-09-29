@@ -119,7 +119,7 @@ int getSize(BoolArray * bArr)
 unsigned char isEmpty(BoolArray * bArr)
 {
 	char empty_flag = 1;
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(static)
 	for(int i=0; i < empty_flag*getSize(bArr); i=i+CHAR_SIZE)
 	{
 		if(get_chunk(bArr, i)!=0)

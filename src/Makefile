@@ -1,10 +1,11 @@
 
 SRC = BoolArray.c GraphLinked.c GraphMatrix.c Graph.c parse_utils.c graph_algo.c main.c
 CC = cc
-CFLAGS = -g -D DEBUG=1
-CFLAGS+= -fopenmp
+#CFLAGS = -g -D DEBUG=1
+CFLAGS = -O3
+OPENMP_FLAG= -fopenmp
 OUT = run
 
 all:
-	$(CC) $(CFLAGS) $(SRC) -o $(OUT)
-
+	$(CC) $(CFLAGS) $(SRC) -o $(OUT)_seq
+	$(CC) $(CFLAGS) $(OPENMP_FLAG) $(SRC) -o $(OUT)_par

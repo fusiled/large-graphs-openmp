@@ -4,10 +4,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef DEBUG
-	#include <stdio.h>
-#endif
+#include <stdio.h>
 
 
 int getNeighborNumber(GraphLinked *, int);
