@@ -35,8 +35,8 @@ void bfs_common(Graph * gr, int S)
 	{
 		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
 		{
-			#pragma omp task
-			bfs_kernel(node_id, gr, F, X, C);
+			#pragma omp task shared(gr,F,X,C)
+				bfs_kernel(node_id, gr, F, X, C);
 			#pragma omp nowait
 		}
 	}
