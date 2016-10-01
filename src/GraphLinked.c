@@ -120,10 +120,10 @@ void printGraphLinked(GraphLinked * gr)
 {
 	for(int i=0; i< gr->n_vert; i++)
 	{
-		printf("Node: %d:", i+1);
+		printf("Node: %d:", i);
 		for (int j=0; j < getNeighborNumber(gr,i); j++)
 		{
-			printf("-> %d", gr->V_ar[i].adj_list[j]+1 );
+			printf("-> %d", gr->V_ar[i].adj_list[j] );
 		}
 		printf("\n");
 	}

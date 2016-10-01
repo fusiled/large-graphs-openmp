@@ -92,7 +92,7 @@ void printGraphMatrix(GraphMatrix * gr)
 	for(int i=0; i< gr->n_vert; i++)
 	{
 		printf("Node %d:", i);
-		for(int j=0; j < gr->n_vert; i++)
+		for(int j=0; j < gr->n_vert; j++)
 		{
 			if(gr->W_ma[i][j]!=0)
 			{

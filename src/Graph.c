@@ -209,18 +209,20 @@ int getVertexNumber(Graph * gr)
 
 int getWeight(Graph * gr, int head, int tail)
 {
+	int weight;
 	switch(gr->graph_type)
 	{
 		case GRAPH_TYPE_ADJ_LIST: 
-			return getWeightLinked(gr->graph, head, tail);
+			weight=getWeightLinked(gr->graph, head, tail);
 		break;
 		case GRAPH_TYPE_MATRIX:
-			return getWeightMatrix(gr->graph, head, tail);
+			weight=getWeightMatrix(gr->graph, head, tail);
 		break;
 		default:
 			printf("Unknow GRAPH_TYPE parameter (Probably it has been corrupted). Exiting\n");
 			exit(-1);
-	}	
+	}
+	return weight;
 }
 
 
@@ -263,13 +265,30 @@ void sssp(Graph * gr, int S)
 
 void apsp_fw(Graph * gr)
 {
+	int ** result;
 	switch(gr->graph_type)
 	{
 		case GRAPH_TYPE_ADJ_LIST: 
 			printf("fw with adj is not implemented yet. Skipping..\n");
 		break;
 		case GRAPH_TYPE_MATRIX:
-			apsp_fw_matrix(gr->graph);
+			result = apsp_fw_matrix(gr->graph);
+			#ifdef TEST
+				test_fp = fopen(test_result_name, "a");
+				fprintf(test_fp, "---apsp_fw---RESULTS------\n");
+				for(int i=0; i<getVertexNumber(gr); i++)
+				{
+					fprintf(test_fp, "from node %d: ",i );
+					for(int j=0; j<getVertexNumber(gr); j++)
+					{
+						fprintf(test_fp,"%d: %d\n", j, result[i][j] );
+					}
+					fprintf(test_fp, "--------\n");
+				}
+				fprintf(test_fp, "----------------------------------------\n");
+				fclose(test_fp);
+			#endif
+			free(result);
 		break;
 		default:
 			printf("Unknow GRAPH_TYPE parameter (Probably it has been corrupted). Exiting\n");

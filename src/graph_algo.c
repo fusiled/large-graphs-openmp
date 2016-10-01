@@ -3,18 +3,34 @@
 
 #include "Graph.h"
 #include "BoolArray.h"
+#include "graph_common.h"
 
 #include <stdio.h>
 #include <omp.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
-#define INF -1
+#define INF INT_MAX
+
+void print_int_array(int *, int);
 
 void bfs_kernel(int, Graph *, BoolArray *, BoolArray *, int *);
 
 void sssp_kernel_1(int, Graph *, BoolArray *, int *, int *);
 void sssp_kernel_2(int, Graph *, BoolArray *, int *, int *);
+
+
+
+void print_int_array(int * ar, int size)
+{
+	printf("int array @%d: ",ar);
+	for(int i=0; i<size; i++)
+	{
+		printf("%d ",ar[i] );
+	}
+	printf("\n");
+}
 
 void bfs_common(Graph * gr, int S)
 {
@@ -35,11 +51,30 @@ void bfs_common(Graph * gr, int S)
 	{
 		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
 		{
-			#pragma omp task shared(gr,F,X,C)
+			#pragma omp task
 				bfs_kernel(node_id, gr, F, X, C);
 			#pragma omp nowait
 		}
 	}
+	#ifdef TEST
+		test_fp = fopen(test_result_name, "a");
+		fprintf(test_fp, "---bfs_common---RESULT---source:%d---\n", S );
+		fprintf(test_fp, "node: cost (number of arcs, weight is ignored)\n");
+		for(int i=0; i<getVertexNumber(gr); i++)
+		{
+			fprintf(test_fp, "%d: ",i );
+			if(C[i]==INF)
+			{
+				fprintf(test_fp, "INF\n");
+			}
+			else
+			{
+				fprintf(test_fp, "%d\n", C[i] );
+			}
+		}
+		fprintf(test_fp, "----------------------------------------\n");
+		fclose(test_fp);
+	#endif
 	destroyBoolArray(F);
 	destroyBoolArray(X);
 	free(C);
@@ -48,9 +83,9 @@ void bfs_common(Graph * gr, int S)
 
 void bfs_kernel(int node_id, Graph * gr, BoolArray * F, BoolArray * X, int * C)
 {
-	setValue(F,node_id, UNS_FALSE);
 	if(getValue(F,node_id)==UNS_TRUE)
 	{
+		setValue(F,node_id, UNS_FALSE);
 		setValue(X,node_id,UNS_TRUE);
 		int n_neighbor;
 		int * neighbors = getNeighbors(gr, node_id, &n_neighbor);
@@ -90,11 +125,37 @@ void sssp_common(Graph * gr, int S)
 			#pragma omp task
 			{
 				sssp_kernel_1(i, gr, M, C, U);
+			}
+			#pragma omp nowait
+		}
+		for(int i=0; i<getVertexNumber(gr); i++)
+		{
+			#pragma omp task
+			{
 				sssp_kernel_2(i, gr, M, C, U);
 			}
 			#pragma omp nowait
 		}
 	}
+	#ifdef TEST
+		test_fp = fopen(test_result_name, "a");
+		fprintf(test_fp, "---sssp_common---RESULT---source:%d---\n", S );
+		fprintf(test_fp, "node: cost\n");
+		for(int i=0; i<getVertexNumber(gr); i++)
+		{
+			fprintf(test_fp, "%d: ",i );
+			if(C[i]==INF)
+			{
+				fprintf(test_fp, "INF\n");
+			}
+			else
+			{
+				fprintf(test_fp, "%d\n", C[i] );
+			}
+		}
+		fprintf(test_fp, "----------------------------------------\n");
+		fclose(test_fp);
+	#endif
 	destroyBoolArray(M);
 	free(C);
 	free(U);
@@ -112,9 +173,9 @@ void sssp_kernel_1(int node_id, Graph * gr, BoolArray * M, int * C, int * U)
 		for(int i=0; i< n_neighbor; i++)
 		{
 			int neighbor = neighbors[i];
-			if(U[neighbor] > C[node_id] + getWeight(gr,node_id,neighbor) )
+			if( U[neighbor] > C[node_id] + getWeight(gr,node_id,neighbor) )
 			{
-				U[i] = C[node_id] + getWeight(gr,node_id,neighbor);
+				U[neighbor] = C[node_id] + getWeight(gr,node_id,neighbor);
 			}
 		}
 		free(neighbors);
@@ -134,8 +195,18 @@ void sssp_kernel_2(int node_id, Graph * gr, BoolArray * M, int * C, int * U)
 
 void apsp_sssp_common(Graph * gr)
 {
+	#ifdef TEST
+		test_fp = fopen(test_result_name, "a");
+		fprintf(test_fp, "---apsp_sssp---RESULTS------\n");
+		fclose(test_fp);
+	#endif
 	for(int S=0; S < getVertexNumber(gr); S++)
 	{
 		sssp_common(gr, S);
 	}
+	#ifdef TEST
+		test_fp = fopen(test_result_name, "a");
+		fprintf(test_fp, "----------------------------------------\n");
+		fclose(test_fp);
+	#endif
 }

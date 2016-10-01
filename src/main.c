@@ -3,6 +3,7 @@
 
 #include "Graph.h"
 #include "parse_utils.h"
+#include "graph_common.h"
 
 #include <string.h>
 #include <time.h>
@@ -38,6 +39,10 @@ int main(int argc, char const *argv[])
 	Graph * gr;
 	char * path = strdup(argv[2]);
 	int graph_type = atoi(argv[4]);
+	#ifdef TEST
+		test_fp = fopen(test_result_name, "w");
+		fclose(test_fp);
+	#endif
 	switch( atoi(argv[3]) )
 	{
 		case CHAL9: 
@@ -51,6 +56,7 @@ int main(int argc, char const *argv[])
 		return -1;
 	}
 	free(path);
+	printGraph(gr);
 	printf("starting bfs\n");
 	struct timeval tic, toc;
 	/*
@@ -72,14 +78,14 @@ int main(int argc, char const *argv[])
 	free(time_bfs);
 	*/
 	gettimeofday(&tic,NULL);
-	bfs(gr, 1);
+	bfs(gr, 0);
 	gettimeofday(&toc,NULL);
 	long int bfs_time = toc.tv_usec-tic.tv_usec;
 	printf("bfs: %lu microseconds\n", bfs_time );
 	printf("bfs ended\n");
 	printf("sssp begin\n");
 	gettimeofday(&tic,NULL);
-	sssp(gr, 1);
+	sssp(gr, 0);
 	gettimeofday(&toc,NULL);
 	long int sssp_time = toc.tv_usec-tic.tv_usec;
 	printf("sssp: %lu microseconds\n", sssp_time );
