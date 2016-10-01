@@ -9,9 +9,6 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
-
-#define INF INT_MAX
 
 void print_int_array(int *, int);
 
@@ -173,9 +170,10 @@ void sssp_kernel_1(int node_id, Graph * gr, BoolArray * M, int * C, int * U)
 		for(int i=0; i< n_neighbor; i++)
 		{
 			int neighbor = neighbors[i];
-			if( U[neighbor] > C[node_id] + getWeight(gr,node_id,neighbor) )
+			int updated_cost = C[node_id]==INF ? INF : C[node_id] + getWeight(gr,node_id,neighbor);
+			if( U[neighbor] > updated_cost )
 			{
-				U[neighbor] = C[node_id] + getWeight(gr,node_id,neighbor);
+				U[neighbor] = updated_cost;
 			}
 		}
 		free(neighbors);

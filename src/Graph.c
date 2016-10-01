@@ -278,10 +278,18 @@ void apsp_fw(Graph * gr)
 				fprintf(test_fp, "---apsp_fw---RESULTS------\n");
 				for(int i=0; i<getVertexNumber(gr); i++)
 				{
-					fprintf(test_fp, "from node %d: ",i );
+					fprintf(test_fp, "from node %d:\n",i );
 					for(int j=0; j<getVertexNumber(gr); j++)
 					{
-						fprintf(test_fp,"%d: %d\n", j, result[i][j] );
+						fprintf(test_fp,"%d:", j);
+						if(result[i][j]==INF)
+						{
+							fprintf(test_fp, "INF\n");
+						}
+						else
+						{
+							fprintf(test_fp, "%d\n", result[i][j] );
+						}
 					}
 					fprintf(test_fp, "--------\n");
 				}

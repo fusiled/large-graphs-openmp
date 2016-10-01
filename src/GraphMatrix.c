@@ -9,7 +9,8 @@
 
 int min(int x, int y)
 {
-	return x < y ? x : y; 
+
+	return (x < y) ? x : y; 
 }
 
 GraphMatrix * newGraphMatrix(int n_vert, int with_weight)
@@ -35,6 +36,10 @@ GraphMatrix * newGraphMatrix(int n_vert, int with_weight)
 		{
 			printf("Cannot instantiate Weight Matrix... exiting\n");
 			exit(-1);
+		}
+		for(int j=0; j<gr->n_vert; j++ )
+		{
+			gr->W_ma[i][j]=INF;
 		}
 	}
 	return gr;
@@ -94,7 +99,7 @@ void printGraphMatrix(GraphMatrix * gr)
 		printf("Node %d:", i);
 		for(int j=0; j < gr->n_vert; j++)
 		{
-			if(gr->W_ma[i][j]!=0)
+			if(gr->W_ma[i][j]!=INF)
 			{
 				printf("->%d", j);
 			}
@@ -142,6 +147,14 @@ int ** apsp_fw_matrix(GraphMatrix * gr)
 		}
 		#pragma omp nowait
 	}
+	for(int i=0; i<getVertexNumberMatrix(gr);i++)
+	{
+		for(int j=0; j<getVertexNumberMatrix(gr); j++)
+		{
+			printf("%d ", result[i][j]);
+		}
+		printf("\n");
+	}
 	for(int k=0; k<getVertexNumberMatrix(gr); k++)
 	{
 		#pragma omp parallel for collapse(2) shared(result, gr)
@@ -149,7 +162,10 @@ int ** apsp_fw_matrix(GraphMatrix * gr)
 		{
 			for(int j=0; j<getVertexNumberMatrix(gr); j++)
 			{
-				result[i][j]= min(result[i][j], result[i][k]+result[k][j]);
+				int a = result[i][k];
+				int b = result[k][j];
+				int c = (a==INF || b==INF) ? INF : result[i][k]+result[k][j] ;
+				result[i][j] = min(result[i][j], c);
 			}
 		}
 	}
