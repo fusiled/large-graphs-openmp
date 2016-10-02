@@ -56,9 +56,9 @@ int main(int argc, char const *argv[])
 		return -1;
 	}
 	free(path);
-	printGraph(gr);
+	//printGraph(gr);
 	printf("starting bfs\n");
-	struct timeval tic, toc;
+	struct timeval tic, toc, time_result;
 	/*
 	double * time_bfs = malloc(sizeof(double)*gr->n_vert);
 	for(int node_id=0; node_id<gr->n_vert; node_id++)
@@ -80,29 +80,29 @@ int main(int argc, char const *argv[])
 	gettimeofday(&tic,NULL);
 	bfs(gr, 0);
 	gettimeofday(&toc,NULL);
-	long int bfs_time = toc.tv_usec-tic.tv_usec;
-	printf("bfs: %lu microseconds\n", bfs_time );
+	timersub(&toc,&tic, &time_result);
+	printf("bfs: %ld,%lu sec\n", time_result.tv_sec, time_result.tv_usec  );
 	printf("bfs ended\n");
 	printf("sssp begin\n");
 	gettimeofday(&tic,NULL);
 	sssp(gr, 0);
 	gettimeofday(&toc,NULL);
-	long int sssp_time = toc.tv_usec-tic.tv_usec;
-	printf("sssp: %lu microseconds\n", sssp_time );
+	timersub(&toc,&tic, &time_result);
+	printf("sssp: %ld,%lu sec\n", time_result.tv_sec, time_result.tv_usec  );
 	printf("sssp ended\n");
 	printf("apsp_sssp begin\n");
 	gettimeofday(&tic,NULL);
 	apsp_sssp(gr);
 	gettimeofday(&toc,NULL);
-	long int apsp_sssp_time = toc.tv_usec-tic.tv_usec;
-	printf("apsp_sssp: %lu microseconds\n", apsp_sssp_time );
+	timersub(&toc,&tic, &time_result);
+	printf("apsp_sssp: %ld,%lu sec\n", time_result.tv_sec, time_result.tv_usec  );
 	printf("apsp_sssp ended\n");
 	printf("apsp_fw begin\n");
 	gettimeofday(&tic,NULL);
 	apsp_fw(gr);
 	gettimeofday(&toc,NULL);
-	long int apsp_fw_time = toc.tv_usec-tic.tv_usec;
-	printf("apsp_fw: %lu microseconds\n", apsp_fw_time );
+	timersub(&toc,&tic, &time_result);
+	printf("apsp_fw: %ld,%lu sec\n", time_result.tv_sec, time_result.tv_usec  );
 	printf("apsp_fw ended\n");
 	destroyGraph(gr);
 	return 0;

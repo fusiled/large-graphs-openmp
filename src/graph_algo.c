@@ -125,14 +125,20 @@ void sssp_common(Graph * gr, int S)
 			}
 			#pragma omp nowait
 		}
-		for(int i=0; i<getVertexNumber(gr); i++)
+		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
 		{
 			#pragma omp task
 			{
-				sssp_kernel_2(i, gr, M, C, U);
+				if(C[node_id] > U[node_id] )
+				{
+					C[node_id] = U[node_id];
+					setValue(M,node_id,UNS_TRUE);
+				}
 			}
 			#pragma omp nowait
 		}
+		//do copy in 1 step
+		memcpy(U,C, sizeof(int)*getVertexNumber(gr));
 	}
 	#ifdef TEST
 		test_fp = fopen(test_result_name, "a");
@@ -170,7 +176,7 @@ void sssp_kernel_1(int node_id, Graph * gr, BoolArray * M, int * C, int * U)
 		for(int i=0; i< n_neighbor; i++)
 		{
 			int neighbor = neighbors[i];
-			int updated_cost = C[node_id]==INF ? INF : C[node_id] + getWeight(gr,node_id,neighbor);
+			int updated_cost = (C[node_id]==INF || getWeight(gr,node_id, neighbor)==INF) ? INF : C[node_id] + getWeight(gr,node_id,neighbor);
 			if( U[neighbor] > updated_cost )
 			{
 				U[neighbor] = updated_cost;
@@ -182,7 +188,7 @@ void sssp_kernel_1(int node_id, Graph * gr, BoolArray * M, int * C, int * U)
 
 void sssp_kernel_2(int node_id, Graph * gr, BoolArray * M, int * C, int * U)
 {
-	if( C[node_id] > U[node_id])
+	if(C[node_id] > U[node_id] )
 	{
 		C[node_id] = U[node_id];
 		setValue(M,node_id,UNS_TRUE);

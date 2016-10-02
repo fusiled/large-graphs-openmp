@@ -147,14 +147,6 @@ int ** apsp_fw_matrix(GraphMatrix * gr)
 		}
 		#pragma omp nowait
 	}
-	for(int i=0; i<getVertexNumberMatrix(gr);i++)
-	{
-		for(int j=0; j<getVertexNumberMatrix(gr); j++)
-		{
-			printf("%d ", result[i][j]);
-		}
-		printf("\n");
-	}
 	for(int k=0; k<getVertexNumberMatrix(gr); k++)
 	{
 		#pragma omp parallel for collapse(2) shared(result, gr)
