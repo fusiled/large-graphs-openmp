@@ -215,9 +215,7 @@ void apsp_sssp_common(Graph * gr)
 	#endif
 	for(int S=0; S < getVertexNumber(gr); S++)
 	{
-		#pragma omp task
-		sssp_base(gr, S, 0);
-		#pragma omp nowait
+		sssp_base(gr, S, 1);
 	}
 	#ifdef TEST
 		test_fp = fopen(test_result_name, "a");
