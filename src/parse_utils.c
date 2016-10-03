@@ -255,7 +255,7 @@ void analyze_build_edge(FILE * fp, Graph * gr)
 	char out_flag = 0;
 	while( read = getline(&line, &line_size, fp )!= -1 && out_flag==0)
 	{
-		#pragma omp task private(line) shared(out_flag)
+		#pragma omp task shared(out_flag)
 		{
 			if(atoi(line)==-1)
 			{
