@@ -179,12 +179,14 @@ Graph * parseFile(char * path, int graph_type, int with_weight)
 	}
 	//build the graph using analyzeFile
 	Graph * gr=NULL;
+	printf("Building nodes... ");
 	gr = analyze_build_node(fp, graph_type, with_weight);
 	if(gr==NULL)
 	{
 		printf("Something is wrong with the node building\n");
 		exit(1);
 	}
+	printf("Building edges...\n");
 	analyze_build_edge(fp, gr);
 	fclose(fp);
 	return gr;
@@ -266,9 +268,9 @@ void analyze_build_edge(FILE * fp, Graph * gr)
 				char * line_copy =strdup(line);
 				char * buf = strtok(line_copy, SPACE_STRING);
 				int head = atoi(buf);
-				buf = strtok(line_copy, SPACE_STRING);
+				buf = strtok(NULL, SPACE_STRING);
 				int tail = atoi(buf);
-				buf = strtok(line_copy, SPACE_STRING);
+				buf = strtok(NULL, SPACE_STRING);
 				int weight = atoi(buf);
 				insertEdge(gr, head, tail, weight);
 				free(line_copy);

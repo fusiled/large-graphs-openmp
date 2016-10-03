@@ -14,6 +14,7 @@ void print_int_array(int *, int);
 
 void bfs_kernel(int, Graph *, BoolArray *, BoolArray *, int *);
 
+void sssp_base(Graph *, int, char);
 void sssp_kernel_1(int, Graph *, BoolArray *, int *, int *);
 void sssp_kernel_2(int, Graph *, BoolArray *, int *, int *);
 
@@ -99,13 +100,19 @@ void bfs_kernel(int node_id, Graph * gr, BoolArray * F, BoolArray * X, int * C)
 	}
 }
 
-
+/**public interface. The default is to enable parallelism*/
 void sssp_common(Graph * gr, int S)
+{
+	sssp_base(gr, S, 1);
+}
+
+
+void sssp_base(Graph * gr, int S, char enable_parallelism)
 {
 	BoolArray * M = newBoolArray(getVertexNumber(gr));
 	int * C = malloc(sizeof(int)*getVertexNumber(gr));
 	int * U = malloc(sizeof(int)*getVertexNumber(gr));
-	#pragma omp parallel for shared(M,U,C)
+	#pragma omp parallel for shared(M,U,C) if(enable_parallelism)
 	for(int i=0; i<getVertexNumber(gr); i++)
 	{
 		setValue(M,i,UNS_FALSE);
@@ -119,15 +126,15 @@ void sssp_common(Graph * gr, int S)
 	{
 		for(int i=0; i<getVertexNumber(gr); i++)
 		{
-			#pragma omp task
+			#pragma omp task if(enable_parallelism)
 			{
 				sssp_kernel_1(i, gr, M, C, U);
 			}
-			#pragma omp nowait
+			#pragma omp nowait 
 		}
 		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
 		{
-			#pragma omp task
+			#pragma omp task if(enable_parallelism)
 			{
 				if(C[node_id] > U[node_id] )
 				{
@@ -135,12 +142,13 @@ void sssp_common(Graph * gr, int S)
 					setValue(M,node_id,UNS_TRUE);
 				}
 			}
-			#pragma omp nowait
+			#pragma omp nowait 
 		}
 		//do copy in 1 step
 		memcpy(U,C, sizeof(int)*getVertexNumber(gr));
 	}
 	#ifdef TEST
+	#if enable_parallelism==1
 		test_fp = fopen(test_result_name, "a");
 		fprintf(test_fp, "---sssp_common---RESULT---source:%d---\n", S );
 		fprintf(test_fp, "node: cost\n");
@@ -158,6 +166,7 @@ void sssp_common(Graph * gr, int S)
 		}
 		fprintf(test_fp, "----------------------------------------\n");
 		fclose(test_fp);
+	#endif
 	#endif
 	destroyBoolArray(M);
 	free(C);
@@ -204,9 +213,10 @@ void apsp_sssp_common(Graph * gr)
 		fprintf(test_fp, "---apsp_sssp---RESULTS------\n");
 		fclose(test_fp);
 	#endif
+	#pragma omp parallel for
 	for(int S=0; S < getVertexNumber(gr); S++)
 	{
-		sssp_common(gr, S);
+		sssp_base(gr, S, 0);
 	}
 	#ifdef TEST
 		test_fp = fopen(test_result_name, "a");
