@@ -213,10 +213,11 @@ void apsp_sssp_common(Graph * gr)
 		fprintf(test_fp, "---apsp_sssp---RESULTS------\n");
 		fclose(test_fp);
 	#endif
-	#pragma omp parallel for
 	for(int S=0; S < getVertexNumber(gr); S++)
 	{
+		#pragma omp task
 		sssp_base(gr, S, 0);
+		#pragma omp nowait
 	}
 	#ifdef TEST
 		test_fp = fopen(test_result_name, "a");
