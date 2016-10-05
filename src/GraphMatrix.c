@@ -73,7 +73,7 @@ int * getNeighborsMatrix(GraphMatrix * gr, int index, int * n_neighbor_ref)
 	int n_neighbor=0;
 	for(int i=0; i < gr->n_vert; i++)
 	{
-		if(line[i]!=0)
+		if(line[i]!=INF)
 		{
 			n_neighbor++;
 		}
@@ -83,7 +83,7 @@ int * getNeighborsMatrix(GraphMatrix * gr, int index, int * n_neighbor_ref)
 	*n_neighbor_ref = n_neighbor;
 	for(int i=0; i< gr->n_vert; i++)
 	{
-		if(line[i]!=0)
+		if(line[i]!=INF)
 		{
 			ret_ref[ret_ref_iter]=i;
 			ret_ref_iter++;
@@ -138,14 +138,14 @@ GraphMatrix * duplicateGraphMatrix(GraphMatrix * gr)
 int ** apsp_fw_matrix(GraphMatrix * gr)
 {
 	int ** result = malloc(sizeof(int *)*getVertexNumberMatrix(gr));
+	#pragma omp parallel for shared(gr,result)
 	for(int i=0; i < getVertexNumberMatrix(gr); i++)
 	{
-		#pragma omp task
 		{
 			result[i] = malloc(sizeof(int)*getVertexNumberMatrix(gr));
 			memcpy(result[i], gr->W_ma[i], sizeof(int)*getVertexNumberMatrix(gr));
+			result[i][i]=0;
 		}
-		#pragma omp nowait
 	}
 	for(int k=0; k<getVertexNumberMatrix(gr); k++)
 	{
@@ -156,6 +156,7 @@ int ** apsp_fw_matrix(GraphMatrix * gr)
 			{
 				int a = result[i][k];
 				int b = result[k][j];
+				//check overflow
 				int c = (a==INF || b==INF) ? INF : result[i][k]+result[k][j] ;
 				result[i][j] = min(result[i][j], c);
 			}

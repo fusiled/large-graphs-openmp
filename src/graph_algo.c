@@ -148,7 +148,8 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 		memcpy(U,C, sizeof(int)*getVertexNumber(gr));
 	}
 	#ifdef TEST
-	#if enable_parallelism==1
+	if(enable_parallelism==1)
+	{
 		test_fp = fopen(test_result_name, "a");
 		fprintf(test_fp, "---sssp_common---RESULT---source:%d---\n", S );
 		fprintf(test_fp, "node: cost\n");
@@ -166,7 +167,7 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 		}
 		fprintf(test_fp, "----------------------------------------\n");
 		fclose(test_fp);
-	#endif
+	}
 	#endif
 	destroyBoolArray(M);
 	free(C);
