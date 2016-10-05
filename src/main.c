@@ -90,13 +90,13 @@ int main(int argc, char const *argv[])
 	timersub(&toc,&tic, &time_result);
 	printf("sssp: %ld,%lu sec\n", time_result.tv_sec, time_result.tv_usec  );
 	printf("sssp ended\n");
-	printf("apsp_sssp begin\n");
+	/*printf("apsp_sssp begin\n");
 	gettimeofday(&tic,NULL);
 	apsp_sssp(gr);
 	gettimeofday(&toc,NULL);
 	timersub(&toc,&tic, &time_result);
 	printf("apsp_sssp: %ld,%lu sec\n", time_result.tv_sec, time_result.tv_usec  );
-	printf("apsp_sssp ended\n");
+	printf("apsp_sssp ended\n");*/
 	printf("apsp_fw begin\n");
 	gettimeofday(&tic,NULL);
 	apsp_fw(gr);
