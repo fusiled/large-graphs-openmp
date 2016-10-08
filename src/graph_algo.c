@@ -47,12 +47,16 @@ void bfs_common(Graph * gr, int S)
 	C[S]=0;
 	while(isEmpty(F)!=UNS_TRUE)
 	{
+		//#pragma omp parallel for
 		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
 		{
 			#pragma omp parallel
 			#pragma omp single nowait
 			{
 			#pragma omp task
+			#ifdef _OPENMP
+				//printf("tn: %d", omp_get_thread_num());
+			#endif
 				bfs_kernel(node_id, gr, F, X, C);
 			#pragma omp nowait
 			}
