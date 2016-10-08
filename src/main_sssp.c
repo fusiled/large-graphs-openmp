@@ -58,10 +58,10 @@ int main(int argc, char const *argv[])
 	free(path);
 	struct timeval tic, toc, time_result;
 	gettimeofday(&tic,NULL);
-	bfs(gr, 0);
+	sssp(gr, 0);
 	gettimeofday(&toc,NULL);
 	timersub(&toc,&tic, &time_result);
-	printf("bfs(%d): %ld.%lu sec\n", getVertexNumber(gr), time_result.tv_sec, time_result.tv_usec  );
+	printf("sssp(%d): %ld.%lu sec\n", getVertexNumber(gr), time_result.tv_sec, time_result.tv_usec  );
 	destroyGraph(gr);
 	return 0;
 }

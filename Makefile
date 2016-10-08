@@ -14,7 +14,7 @@
 #source file EXCEPT MAIN FILES here
 SRC = BoolArray.c GraphLinked.c GraphMatrix.c Graph.c parse_utils.c graph_algo.c
 #put MAINs down here
-MAIN = main.c main_bfs.c
+MAIN = main_bfs.c main_sssp.c main_apsp_fw.c main_apsp_sssp.c
 #your compiler
 CC = cc
 
@@ -70,3 +70,8 @@ clean:
 
 #clean and build
 full: clean all
+
+
+test: $(MAIN_RULE)
+	./test_linked.bash
+	./test_matrix.bash
