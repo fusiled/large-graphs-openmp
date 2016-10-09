@@ -61,7 +61,7 @@ int main(int argc, char const *argv[])
 	sssp(gr, 0);
 	gettimeofday(&toc,NULL);
 	timersub(&toc,&tic, &time_result);
-	printf("sssp(%d): %ld.%lu sec\n", getVertexNumber(gr), time_result.tv_sec, time_result.tv_usec  );
+	printf("%ld.%lu", time_result.tv_sec, time_result.tv_usec  );
 	destroyGraph(gr);
 	return 0;
 }
