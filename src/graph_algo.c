@@ -57,7 +57,7 @@ void bfs_common(Graph * gr, int S)
 			//#pragma omp task
 				bfs_kernel(node_id, gr, F, X, C);
 			//#pragma omp nowait
-			}
+			//}
 		}
 	}
 	#ifdef TEST
