@@ -48,6 +48,7 @@ void bfs_common(Graph * gr, int S)
 	while(isEmpty(F)!=UNS_TRUE)
 	{
 		#pragma omp parallel shared(gr,F,X,C)
+		{
 		#pragma omp for nowait
 		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
 		{
@@ -59,9 +60,11 @@ void bfs_common(Graph * gr, int S)
 			//#pragma omp nowait
 			//}
 		}
+		}
 	}
 	#ifdef TEST
-		test_fp = fopen(test_result_name, "a");
+		test_fp = fopen("bfs_test", "w");
+		printf("opened %s", "bfs_test");
 		fprintf(test_fp, "---bfs_common---RESULT---source:%d---\n", S );
 		fprintf(test_fp, "node: cost (number of arcs, weight is ignored)\n");
 		for(int i=0; i<getVertexNumber(gr); i++)
@@ -130,33 +133,41 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 	U[S]=0;
 	while(isEmpty(M)!=UNS_TRUE)
 	{
+		#pragma omp parallel shared(gr,M,C,U)
+		{
+		#pragma omp for nowait
 		for(int i=0; i<getVertexNumber(gr); i++)
 		{
-			#pragma omp parallel if(enable_parallelism)
-			#pragma omp single nowait
-			{
-				#pragma omp task if(enable_parallelism)
+			//#pragma omp parallel if(enable_parallelism)
+			//#pragma omp single nowait
+			//{
+			//	#pragma omp task if(enable_parallelism)
 				{
 					sssp_kernel_1(i, gr, M, C, U);
 				}
-				#pragma omp nowait
-			} 
+			//	#pragma omp nowait
+			//} 
 		}
+		}
+		#pragma omp parallel shared(gr,M,C,U)
+		{
+		#pragma omp for nowait
 		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
 		{
-			#pragma omp parallel if(enable_parallelism)
-			#pragma omp single nowait
-			{
-				#pragma omp task if(enable_parallelism)
-				{
+			//#pragma omp parallel if(enable_parallelism)
+			//#pragma omp single nowait
+			//{
+			//	#pragma omp task if(enable_parallelism)
+			//	{
 					if(C[node_id] > U[node_id] )
 					{
 						C[node_id] = U[node_id];
 						setValue(M,node_id,UNS_TRUE);
 					}
-				}
-				#pragma omp nowait
-			} 
+			//	}
+			//	#pragma omp nowait
+			//} 
+		}
 		}
 		//do copy in 1 step
 		memcpy(U,C, sizeof(int)*getVertexNumber(gr));
