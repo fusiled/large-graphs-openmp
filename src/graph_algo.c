@@ -133,7 +133,7 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 	U[S]=0;
 	while(isEmpty(M)!=UNS_TRUE)
 	{
-		#pragma omp parallel shared(gr,M,C,U)
+		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism)
 		{
 		#pragma omp for nowait
 		for(int i=0; i<getVertexNumber(gr); i++)
@@ -149,7 +149,7 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 			//} 
 		}
 		}
-		#pragma omp parallel shared(gr,M,C,U)
+		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism)
 		{
 		#pragma omp for nowait
 		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
