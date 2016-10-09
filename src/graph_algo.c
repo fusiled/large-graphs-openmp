@@ -47,8 +47,8 @@ void bfs_common(Graph * gr, int S)
 	C[S]=0;
 	while(isEmpty(F)!=UNS_TRUE)
 	{
-		#pragma omp parallel
-		#pragma omp for shared(gr, F,X,C) nowait
+		#pragma omp parallel shared(gr,F,X,C)
+		#pragma omp for nowait
 		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
 		{
 			//#pragma omp parallel
