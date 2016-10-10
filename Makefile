@@ -17,7 +17,8 @@ MAIN = main_bfs.c main_sssp.c main_apsp_fw.c main_apsp_sssp.c
 #your compiler
 CC = cc
 
-TEST_BIN=test_matrix.bash test_real.bash
+TEST_BIN=test_real.bash test_matrix.bash test_linked.bash
+#TEST_BIN=easy.bash easy.bash
 
 #your flags
 #CFLAGS = -g -D DEBUG=1
@@ -42,7 +43,7 @@ MAIN_RULE = $(addprefix $(BIN_DIR)/, $(MAIN_NAME))
 OBJECTS_PATH =$(addprefix $(OBJ_DIR)/,$(OBJECTS)) 
 #all the object files
 MAIN_OBJ_PATH=$(addprefix $(OBJ_DIR)/,$(MAIN_OBJ))
-TEST_EXEC=$(addsuffix  && ,$(addprefix $(TEST_BIN_DIR)/, $(TEST_BIN)) )
+TEST_EXEC=$(addsuffix && ,$(addprefix $(TEST_BIN_DIR)/, $(TEST_BIN)) )
 TEST_EXEC+= echo "finished"
 
 #if nothing is passed to the make command do this. It the starting point of the

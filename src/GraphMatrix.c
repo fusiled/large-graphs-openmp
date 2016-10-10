@@ -149,16 +149,19 @@ int ** apsp_fw_matrix(GraphMatrix * gr)
 	}
 	for(int k=0; k<getVertexNumberMatrix(gr); k++)
 	{
-		#pragma omp parallel for collapse(2) shared(result, gr)
-		for(int i=0; i<getVertexNumberMatrix(gr); i++)
+		#pragma omp parallel shared(result, gr)
 		{
-			for(int j=0; j<getVertexNumberMatrix(gr); j++)
+			#pragma omp for collapse(2) nowait
+			for(int i=0; i<getVertexNumberMatrix(gr); i++)
 			{
-				int a = result[i][k];
-				int b = result[k][j];
-				//check overflow
-				int c = (a==INF || b==INF) ? INF : result[i][k]+result[k][j] ;
-				result[i][j] = min(result[i][j], c);
+				for(int j=0; j<getVertexNumberMatrix(gr); j++)
+				{
+					int a = result[i][k];
+					int b = result[k][j];
+					//check overflow
+					int c = (a==INF || b==INF) ? INF : result[i][k]+result[k][j] ;
+					result[i][j] = min(result[i][j], c);
+				}
 			}
 		}
 	}
