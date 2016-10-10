@@ -1,6 +1,6 @@
 #!/bin/bash
 
-executables="main_bfs_run main_sssp_run main_apsp_sssp_run"
+executables="main_bfs_run main_sssp_run"
 #executables="main_bfs_run"
 output_file="test_result/test_output_linked_"`date -Iseconds`
 graph_path="graphs/test_graph.gr"

@@ -2,7 +2,7 @@
 
 executables="main_bfs_run main_sssp_run "
 output_file="test_result/test_output_real_"`date -Iseconds`
-graph_path="graphs/rome99.gr"
+graph_path="/temp/fusi/"
 
 CORE_CAP="24"
 n_vert_pow="3"
@@ -15,7 +15,7 @@ for exec in $executables
 		printf "t\n">> "$output_file"_"$exec"
 done
 #iterate over graph_path
-for graph in $graph_path
+for graph in `ls $graph_path`
 do
 	echo "testing graph $graph"
 	#iterate over num_cores
@@ -32,7 +32,7 @@ do
 		do
 			printf "%s," "$graph" >>"$output_file"_"$exec"
 			printf "%s," "$n_core"  >>"$output_file"_"$exec"
-			time_res=`bin/$exec $n_core $graph 0 0`
+			time_res=`bin/$exec $n_core $graph_path$graph 0 0`
 			printf "%s\n" "$time_res" >> "$output_file"_"$exec"
 		done
 		core_power=$[$core_power+1]
