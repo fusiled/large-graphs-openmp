@@ -1,4 +1,3 @@
-
 #NOTES: 
 # - $^ is the left side of the rule (the preconditions)
 # - $@ is the right side of the rule (the name of the rule)
@@ -18,6 +17,8 @@ MAIN = main_bfs.c main_sssp.c main_apsp_fw.c main_apsp_sssp.c
 #your compiler
 CC = cc
 
+TEST_BIN=test_linked.bash test_matrix.bash test_real.bash
+
 #your flags
 #CFLAGS = -g -D DEBUG=1
 CFLAGS = -O3
@@ -31,6 +32,7 @@ SRC_DIR=src
 BIN_DIR=bin
 #object files will be saved here (for the reuse)
 OBJ_DIR=obj
+TEST_BIN_DIR=test
 
 OBJECTS =$(SRC:.c=.o)
 MAIN_OBJ = $(MAIN:.c=.o)
@@ -40,6 +42,7 @@ MAIN_RULE = $(addprefix $(BIN_DIR)/, $(MAIN_NAME))
 OBJECTS_PATH =$(addprefix $(OBJ_DIR)/,$(OBJECTS)) 
 #all the object files
 MAIN_OBJ_PATH=$(addprefix $(OBJ_DIR)/,$(MAIN_OBJ))
+TEST_EXEC=$(addprefix $(TEST_BIN_DIR)/, $(TEST_BIN))
 
 
 #if nothing is passed to the make command do this. It the starting point of the
@@ -73,5 +76,4 @@ full: clean all
 
 
 test: $(MAIN_RULE)
-	./test_linked.bash
-	./test_matrix.bash
+	$(TEST_EXEC)

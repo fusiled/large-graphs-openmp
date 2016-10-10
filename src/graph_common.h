@@ -15,7 +15,7 @@
 
 #ifdef TEST
 	#include <stdio.h>
-	#define test_result_name "test_result"
+	#define test_result_name "t_r"
 	FILE * test_fp;
 #endif
 

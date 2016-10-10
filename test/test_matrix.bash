@@ -6,7 +6,7 @@ graph_path="graphs/test_graph.gr"
 
 graph_type="0"
 CORE_CAP="24"
-n_vert_pow="3"
+n_vert_pow="7"
 
 #make csv header
 for exec in $executables

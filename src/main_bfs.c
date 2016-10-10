@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
 	char * path = strdup(argv[2]);
 	int graph_type = atoi(argv[4]);
 	#ifdef TEST
-		test_fp = fopen(test_result_name, "w");
+		test_fp = fopen(test_result_name, "w+");
 		fclose(test_fp);
 	#endif
 	switch( atoi(argv[3]) )
