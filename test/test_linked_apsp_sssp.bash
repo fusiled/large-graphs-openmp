@@ -17,7 +17,7 @@ for exec in $executables
 		printf "t\n">> "$output_file"_"$exec"
 done
 #generate a graph with increasing number of vertices
-while  [ $n_vert_pow -lt 18 ]
+while  [ $n_vert_pow -lt 21 ]
 do
 	n_vert=$(awk "BEGIN{print 2 ** $n_vert_pow}")
 	./Randgraph/rg $graph_path $n_vert $graph_type 11

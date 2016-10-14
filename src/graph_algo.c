@@ -121,7 +121,7 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 	BoolArray * M = newBoolArray(getVertexNumber(gr));
 	int * C = malloc(sizeof(int)*getVertexNumber(gr));
 	int * U = malloc(sizeof(int)*getVertexNumber(gr));
-	#pragma omp parallel for shared(M,U,C) if(enable_parallelism)
+	#pragma omp parallel for shared(M,U,C) if(enable_parallelism!=0)
 	for(int i=0; i<getVertexNumber(gr); i++)
 	{
 		setValue(M,i,UNS_FALSE);
@@ -133,7 +133,7 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 	U[S]=0;
 	while(isEmpty(M)!=UNS_TRUE)
 	{
-		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism)
+		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism!=0)
 		{
 		#pragma omp for nowait
 		for(int i=0; i<getVertexNumber(gr); i++)
@@ -149,7 +149,7 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 			//} 
 		}
 		}
-		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism)
+		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism!=0)
 		{
 		#pragma omp for nowait
 		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
@@ -239,10 +239,9 @@ void apsp_sssp_common(Graph * gr)
 		fprintf(test_fp, "---apsp_sssp---RESULTS------\n");
 		fclose(test_fp);
 	#endif
-	#pragma omp parallel for shared(gr)
 	for(int S=0; S < getVertexNumber(gr); S++)
 	{
-		sssp_base(gr, S, 0);
+		sssp_base(gr, S, 1);
 	}
 	#ifdef TEST
 		test_fp = fopen(test_result_name, "a");
