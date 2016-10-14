@@ -20,7 +20,7 @@ done
 while  [ $n_vert_pow -lt 8 ]
 do
 	n_vert=$(awk "BEGIN{print 10 ** $n_vert_pow}")
-	./Randgraph/rg $graph_path $n_vert $graph_type 11
+	./Randgraph/rg $graph_path $n_vert $graph_type 11 6
 	echo "generated graph with $n_vert vertices"
 	#iterate over num_cores
 	core_power="0"
