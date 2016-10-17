@@ -9,7 +9,7 @@ graph_path="graphs/test_graph.gr"
 
 graph_type="0"
 CORE_CAP="24"
-n_vert_pow="3"
+n_vert_pow="6"
 normal_degree="6"
 high_degree="1000"
 
@@ -23,7 +23,7 @@ for exec in $executables
 		printf "t\n">> "$output_file"_"$exec"
 done
 #generate a graph with increasing number of vertices
-while  [ $n_vert_pow -lt 8 ]
+while  [ $n_vert_pow -lt 10 ]
 do
 	n_vert=$(awk "BEGIN{print 10 ** $n_vert_pow}")
 	low_vert=$(($n_vert/1000 ))
