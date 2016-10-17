@@ -17,7 +17,7 @@ MAIN = main_bfs.c main_sssp.c main_apsp_fw.c main_apsp_sssp.c
 #your compiler
 CC = cc
 
-TEST_BIN=test_real.bash test_matrix.bash test_linked.bash
+TEST_BIN=test_linked_apsp_sssp.bash test_real.bash test_matrix.bash test_linked.bash
 #TEST_BIN=easy.bash easy.bash
 
 #your flags
