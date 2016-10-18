@@ -17,8 +17,9 @@ MAIN = main_bfs.c main_sssp.c main_apsp_fw.c main_apsp_sssp.c
 #your compiler
 CC = cc
 
-TEST_BIN=test_free_scale.bash test_linked_apsp_sssp.bash test_matrix.bash
-#TEST_BIN=test_free_scale.bash
+#TEST_BIN=test_free_scale.bash test_linked_apsp_sssp.bash 
+#test_matrix.bash
+TEST_BIN=test_free_scale.bash
 
 #your flags
 #CFLAGS = -g -D DEBUG=1

@@ -15,6 +15,7 @@ high_degree="1000"
 
 merge_executable="./utils/mergeGraphs"
 
+for index in 0 1 2 3 4 5 do
 #make csv header
 for exec in $executables
 	do
@@ -53,4 +54,6 @@ do
 		core_power=$[$core_power+1]
 	done
 	n_vert_pow=$[$n_vert_pow+1]
+done
+
 done
