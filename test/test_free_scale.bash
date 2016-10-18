@@ -23,9 +23,9 @@ for exec in $executables
 		printf "t\n">> "$output_file"_"$exec"
 done
 #generate a graph with increasing number of vertices
-while  [ $n_vert_pow -lt 10 ]
+while  [ $n_vert_pow -lt 11 ]
 do
-	n_vert=$(awk "BEGIN{print 10 ** $n_vert_pow}")
+	n_vert=$(awk "BEGIN{print 5 ** $n_vert_pow}")
 	low_vert=$(($n_vert/1000 ))
 	./Randgraph/rg $gr_path1 $low_vert $graph_type 11 $high_degree
 	./Randgraph/rg $gr_path2 $n_vert $graph_type 11 $normal_degree
