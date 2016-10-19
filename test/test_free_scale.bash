@@ -9,13 +9,12 @@ graph_path="graphs/test_graph.gr"
 
 graph_type="0"
 CORE_CAP="24"
-n_vert_pow="6"
+n_vert_pow="5"
 normal_degree="6"
 high_degree="1000"
 
 merge_executable="./utils/mergeGraphs"
 
-for index in 0 1 2 3 4 5 do
 #make csv header
 for exec in $executables
 	do
@@ -28,8 +27,8 @@ while  [ $n_vert_pow -lt 11 ]
 do
 	n_vert=$(awk "BEGIN{print 5 ** $n_vert_pow}")
 	low_vert=$(($n_vert/1000 ))
-	./Randgraph/rg $gr_path1 $low_vert $graph_type 11 $high_degree
-	./Randgraph/rg $gr_path2 $n_vert $graph_type 11 $normal_degree
+	./Randgraph/rg $gr_path1 $low_vert $graph_type 12 $high_degree
+	./Randgraph/rg $gr_path2 $n_vert $graph_type 12 $normal_degree
 	$merge_executable $gr_path1 $gr_path2 $graph_path
 	rm $gr_path1
 	rm $gr_path2
@@ -54,6 +53,4 @@ do
 		core_power=$[$core_power+1]
 	done
 	n_vert_pow=$[$n_vert_pow+1]
-done
-
 done
