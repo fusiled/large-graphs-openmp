@@ -19,7 +19,7 @@ CC = cc
 
 #TEST_BIN=test_free_scale.bash test_linked_apsp_sssp.bash 
 #test_matrix.bash
-TEST_BIN=test_free_scale.bash
+TEST_BIN=test_edge_scale.bash test_free_scale.bash
 
 #your flags
 #CFLAGS = -g -D DEBUG=1
