@@ -49,17 +49,11 @@ void bfs_common(Graph * gr, int S)
 	{
 		#pragma omp parallel shared(gr,F,X,C)
 		{
-		#pragma omp for nowait
-		for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
-		{
-			//#pragma omp parallel
-			//#pragma omp single nowait
-			//{
-			//#pragma omp task
+			#pragma omp for nowait
+			for(int node_id=0; node_id < getVertexNumber(gr); node_id++)
+			{
 				bfs_kernel(node_id, gr, F, X, C);
-			//#pragma omp nowait
-			//}
-		}
+			}
 		}
 	}
 	#ifdef TEST
@@ -135,39 +129,23 @@ void sssp_base(Graph * gr, int S, char enable_parallelism)
 	{
 		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism!=0)
 		{
-		#pragma omp for nowait
-		for(int i=0; i<getVertexNumber(gr); i++)
-		{
-			//#pragma omp parallel if(enable_parallelism)
-			//#pragma omp single nowait
-			//{
-			//	#pragma omp task if(enable_parallelism)
-				{
-					sssp_kernel_1(i, gr, M, C, U);
-				}
-			//	#pragma omp nowait
-			//} 
-		}
+			#pragma omp for nowait
+			for(int i=0; i<getVertexNumber(gr); i++)
+			{
+				sssp_kernel_1(i, gr, M, C, U);
+			}	 
 		}
 		#pragma omp parallel shared(gr,M,C,U) if(enable_parallelism!=0)
 		{
-		#pragma omp for nowait
-		for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
-		{
-			//#pragma omp parallel if(enable_parallelism)
-			//#pragma omp single nowait
-			//{
-			//	#pragma omp task if(enable_parallelism)
-			//	{
-					if(C[node_id] > U[node_id] )
-					{
-						C[node_id] = U[node_id];
-						setValue(M,node_id,UNS_TRUE);
-					}
-			//	}
-			//	#pragma omp nowait
-			//} 
-		}
+			#pragma omp for nowait
+			for(int node_id=0; node_id<getVertexNumber(gr); node_id++)
+			{
+				if(C[node_id] > U[node_id] )
+				{
+					C[node_id] = U[node_id];
+					setValue(M,node_id,UNS_TRUE);
+				} 
+			}
 		}
 		//do copy in 1 step
 		memcpy(U,C, sizeof(int)*getVertexNumber(gr));

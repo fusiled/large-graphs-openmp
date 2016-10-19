@@ -2,39 +2,29 @@
 
 executables="main_bfs_run main_sssp_run"
 #executables="main_bfs_run"
-output_file="test_result/test_output_free_scale_"`date -Iseconds`
-gr_path1="graphs/gr1.gr"
-gr_path2="graphs/gr2.gr"
+output_file="test_result/test_output_edge_scale_"`date -Iseconds`
 graph_path="graphs/test_graph.gr"
 
 graph_type="0"
 CORE_CAP="24"
-normal_degree="6"
-high_degree="1000"
-
-merge_executable="./utils/mergeGraphs"
+n_vert="100000"
 
 for iter in 0 1 2 3 4 5
 do 
-	n_vert_pow="5"
+	n_edge_pow="1"
 	#make csv header
 	for exec in $executables
 		do
-			printf "n_vert," >>"$output_file"_"$exec"
+			printf "n_edge," >>"$output_file"_"$exec"
 			printf "n_threads," >>"$output_file"_"$exec"
 			printf "t\n">> "$output_file"_"$exec"
 	done
 	#generate a graph with increasing number of vertices
-	while  [ $n_vert_pow -lt 11 ]
+	while  [ $n_edge_pow -lt 8 ]
 	do
-		n_vert=$(awk "BEGIN{print 5 ** $n_vert_pow}")
-		low_vert=$(($n_vert/1000 ))
-		./Randgraph/rg $gr_path1 $low_vert $graph_type 12 $high_degree
-		./Randgraph/rg $gr_path2 $n_vert $graph_type 12 $normal_degree
-		$merge_executable $gr_path1 $gr_path2 $graph_path
-		rm $gr_path1
-		rm $gr_path2
-		echo "generated graph with $n_vert vertices, small graph was $low_vert"
+		degree=$(awk "BEGIN{print 3 ** $n_edge_pow}")
+		./Randgraph/rg $graph_path $n_vert $graph_type 12 $degree
+		echo "generated graph with $n_vert vertices and degre $degre"
 		#iterate over num_cores
 		core_power="0"
 		while [ $core_power -lt 6 ]
@@ -47,13 +37,13 @@ do
 			#exec all the algos
 			for exec in $executables
 			do
-				printf "%s," "$n_vert" >>"$output_file"_"$exec"
+				printf "%s," "$n_edge" >>"$output_file"_"$exec"
 				printf "%s," "$n_core"  >>"$output_file"_"$exec"
 				time_res=`bin/$exec $n_core $graph_path 1 0`
 				printf "%s\n"  $time_res >> "$output_file"_"$exec"
 			done
 			core_power=$[$core_power+1]
 		done
-		n_vert_pow=$[$n_vert_pow+1]
+		n_edge_pow=$[$n_edge_pow+1]
 	done
 done
