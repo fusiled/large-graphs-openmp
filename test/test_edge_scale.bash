@@ -24,7 +24,7 @@ do
 	do
 		degree=$(awk "BEGIN{print 3 ** $n_edge_pow}")
 		./Randgraph/rg $graph_path $n_vert $graph_type 12 $degree
-		echo "generated graph with $n_vert vertices and degre $degre"
+		echo "generated graph with $n_vert vertices and degre $degree"
 		#iterate over num_cores
 		core_power="0"
 		while [ $core_power -lt 6 ]

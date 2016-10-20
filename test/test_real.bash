@@ -1,12 +1,13 @@
 #!/bin/bash
 
+for iterable in 0 1 2 3 4
+do
 executables="main_bfs_run main_sssp_run "
 output_file="test_result/test_output_real_"`date -Iseconds`
-graph_path="/temp/fusi/"
+graph="/temp/fusi/USA-road-t.W.gr"
 
 CORE_CAP="24"
 n_vert_pow="3"
-
 #make csv header
 for exec in $executables
 	do
@@ -14,9 +15,6 @@ for exec in $executables
 		printf "n_threads," >>"$output_file"_"$exec"
 		printf "t\n">> "$output_file"_"$exec"
 done
-#iterate over graph_path
-for graph in `ls $graph_path`
-do
 	echo "testing graph $graph"
 	#iterate over num_cores
 	core_power="0"
